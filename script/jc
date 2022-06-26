@@ -1,0 +1,61 @@
+#!/bin/bash
+export GIT_REF=$(git rev-parse --short=8 HEAD)
+export IMG_TAG="${GIT_REF}"
+export CNS_APP_DIR="/backend"
+export WEB_APP_DIR="/frontend"
+
+fn_help()
+{
+    echo "jc: JHEE CNS dev cli"
+    echo
+    echo "Jinserk Baik <jinserk.baik@gmail.com>"
+    echo "copyright (c) JHEE Group LLC"
+    echo
+    echo "default usage: "
+    echo "  jc [help|-h|--help]         show this help"
+    echo "  jc build                    build default cns image"
+    echo "  jc up                       run compose env in background"
+    echo "  jc down                     teardown compose env"
+    echo "  jc logs                     show logs from the compose env"
+    echo "  jc psql [<args>]            psql env in db container"
+    echo "  jc jhee [<args>]            exec the jhee cli command in cns container"
+    echo "  jc bash [<args>]            exec bash in cns container"
+    echo
+}
+
+##########
+# main 
+
+[[ $# -lt 1 ]] && fn_help && exit 1
+
+docker_cmd="docker compose -f ${JHEE_CNS_PATH}/docker-compose.yml"
+
+case $1 in
+    "up")
+        ${docker_cmd} up -d --remove-orphans
+        ;;
+    "down")
+        ${docker_cmd} down --remove-orphans
+        ;;
+    "logs")
+        ${docker_cmd} logs -f
+        ;;
+    "build")
+        ${docker_cmd} build
+        ;;
+    "psql")
+        ${docker_cmd} exec db psql -U postgres ${@:2}
+        ;;
+    "jhee")
+        ${docker_cmd} exec cns jhee ${@:2}
+        ;;
+    "bash")
+        ${docker_cmd} exec cns bash ${@:2}
+        ;;
+    "help" | "-h" | "--help")
+        fn_help
+        ;;
+    *)
+        fn_help
+        ;;
+esac

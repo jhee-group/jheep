@@ -1,0 +1,81 @@
+[tool.isort]
+profile = "black"
+
+[tool.coverage.run]
+concurrency = ["thread", "gevent"]
+omit = ["migrations/*"]
+
+[tool.pytest.ini_options]
+markers = ["test_data", "workspace_host", "access_token", "authenticated_admin"]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "cns"
+
+[project]
+name = "jhee-cns"
+authors = [
+  { name = "Jinserk Baik", email = "support@jhee.group" }
+]
+description = "JHEE CNS(Central Nervous System): AI/MLOps framework"
+classifiers = [
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+]
+dynamic = ["version"]
+requires-python = ">=3.10"
+dependencies = [
+    "aiomysql",
+    "aiosqlite",
+    "alembic",
+    "argon2_cffi",
+    "asyncpg",
+    "Babel",
+    "dramatiq[redis]",
+    "fastapi",
+    "fastapi-users[sqlalchemy]",
+    "fastapi-versioning",
+    "furl",
+    "ipython",
+    "Jinja2",
+    "jwcrypto",
+    "loguru",
+    "psycopg2-binary",
+    "pycountry",
+    "pydantic[dotenv]",
+    "python-multipart",
+    "sqlmodel",
+    "typer",
+    "uvicorn[standard]",
+]
+
+[project.optional-dependencies]
+dev = [
+  "asgi-lifespan",
+  "black",
+  "bumpversion",
+  "coverage[toml]",
+  "flit",
+  "httpx",
+  "pytest",
+  "pytest-cov",
+  "pytest-asyncio",
+  "pytest-mock",
+  "sqlalchemy-utils",
+  "tryceratops",
+]
+
+[project.scripts]
+jhee = "cli:app"
+
+[project.urls]
+Documentation = "https://docs.jhee.group/cns"
+
+[tool.flit.sdist]
+include = ["./static", "./locale"]
+exclude = ["tests"]

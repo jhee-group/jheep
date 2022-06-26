@@ -1,0 +1,14 @@
+aiomysql
+aiosqlite
+alembic
+asyncpg
+fastapi
+fastapi-versioning
+fief-client[fastapi]
+ipython
+psycopg2-binary
+pydantic[dotenv]
+python-multipart
+sqlmodel
+typer
+uvicorn
