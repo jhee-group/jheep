@@ -8,7 +8,7 @@ Create Date: ${create_date}
 from alembic import op
 import sqlalchemy as sa
 import sqlmodel
-from cns.models.generics import GUID, TIMESTAMPAware
+from jheep.models.generics import GUID, TIMESTAMPAware
 ${imports if imports else ""}
 
 # revision identifiers, used by Alembic.

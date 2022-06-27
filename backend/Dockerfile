@@ -1,7 +1,7 @@
 # pull official base image
 FROM python:3.10-slim
 
-ARG JHEE_CNS_VERSION
+ARG JHEEP_VERSION
 
 # set environment variables
 ENV DEBIAN_FRONTEND noninteractive
@@ -16,14 +16,14 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
  
 # set working directory
-ENV CNS_APP_DIR /backend
-WORKDIR ${CNS_APP_DIR}
+ENV BACK_APP_DIR /backend
+WORKDIR ${BACK_APP_DIR}
 
-# install cns
+# install jheep
 RUN pip install --upgrade pip
-#COPY ./requirements.txt ${APP_DIR}
-#RUN pip install -U -r ${APP_DIR}/requirements.txt
-COPY . ${CNS_APP_DIR}
+#COPY ./requirements.txt ${BACK_APP_DIR}
+#RUN pip install -U -r ${BACK_APP_DIR}/requirements.txt
+COPY . ${BACK_APP_DIR}
 RUN pip install -U -e .
 
 # entrypoint

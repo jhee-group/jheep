@@ -1,25 +1,25 @@
 #!/bin/bash
 export GIT_REF=$(git rev-parse --short=8 HEAD)
 export IMG_TAG="${GIT_REF}"
-export CNS_APP_DIR="/backend"
-export WEB_APP_DIR="/frontend"
+export BACK_APP_DIR="/backend"
+export FRONT_APP_DIR="/frontend"
 
 fn_help()
 {
-    echo "jc: JHEE CNS dev cli"
+    echo "jc: JHEEP development cli"
     echo
     echo "Jinserk Baik <jinserk.baik@gmail.com>"
     echo "copyright (c) JHEE Group LLC"
     echo
     echo "default usage: "
     echo "  jc [help|-h|--help]         show this help"
-    echo "  jc build                    build default cns image"
+    echo "  jc build                    build default docker image"
     echo "  jc up                       run compose env in background"
     echo "  jc down                     teardown compose env"
     echo "  jc logs                     show logs from the compose env"
     echo "  jc psql [<args>]            psql env in db container"
-    echo "  jc jhee [<args>]            exec the jhee cli command in cns container"
-    echo "  jc bash [<args>]            exec bash in cns container"
+    echo "  jc jhee [<args>]            exec the jheep cli command in back container"
+    echo "  jc bash [<args>]            exec bash in back container"
     echo
 }
 
@@ -28,7 +28,7 @@ fn_help()
 
 [[ $# -lt 1 ]] && fn_help && exit 1
 
-docker_cmd="docker compose -f ${JHEE_CNS_PATH}/docker-compose.yml"
+docker_cmd="docker compose -f ${JHEEP_PATH}/docker-compose.yml"
 
 case $1 in
     "up")
@@ -47,10 +47,10 @@ case $1 in
         ${docker_cmd} exec db psql -U postgres ${@:2}
         ;;
     "jhee")
-        ${docker_cmd} exec cns jhee ${@:2}
+        ${docker_cmd} exec back jhee ${@:2}
         ;;
     "bash")
-        ${docker_cmd} exec cns bash ${@:2}
+        ${docker_cmd} exec back bash ${@:2}
         ;;
     "help" | "-h" | "--help")
         fn_help

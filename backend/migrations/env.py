@@ -6,8 +6,8 @@ from sqlmodel import SQLModel
 
 from alembic import context
 
-from cns import models
-#from api.settings import settings
+from jheep import models
+#from jheep.settings import settings
 
 
 # this is the Alembic Config object, which provides

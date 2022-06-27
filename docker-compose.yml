@@ -2,11 +2,11 @@ version: '3'
 
 services:
 
-  cns:
-    build: ${JHEE_CNS_PATH}/backend
+  back:
+    build: ${JHEEP_PATH}/backend
     #command: uvicorn api.main:app --reload --workers 1 --host 0.0.0.0 --port 8001
     volumes:
-      - ./backend:${CNS_APP_DIR}:rw
+      - ./backend:${BACK_APP_DIR}:rw
     ports:
       - 8001:8001
     environment:
@@ -19,7 +19,7 @@ services:
       - ENVIRONMENT=development
     depends_on:
       - db
-    working_dir: ${CNS_APP_DIR}
+    working_dir: ${BACK_APP_DIR}
       
   db:
     image: postgres

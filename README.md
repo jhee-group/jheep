@@ -1,6 +1,6 @@
-# JHEE Central Nervous System
+# JHEEP: JHEE Platform
 
-JHEE CNS (Central Nervous System) is a main infraware of AI/MLOps in a business scale.
+JHEEP (JHEE Platform) is a main infraware of AI/MLOps in a business scale.
 
 ### Ports
 - Front: 8000
@@ -20,7 +20,7 @@ Run env
 $ jc up
 ```
 
-Use psql to create database. The default database name is `jhee_cns`.
+Use psql to create database. The default database name is `jheep`.
 ```sh
 $ jc psql
 postgres=# create database <database-name>;

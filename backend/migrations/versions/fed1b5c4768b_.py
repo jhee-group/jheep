@@ -8,7 +8,7 @@ Create Date: 2022-06-15 17:11:21.181390
 from alembic import op
 import sqlalchemy as sa
 import sqlmodel
-from cns.models.generics import GUID, TIMESTAMPAware
+from jheep.models.generics import GUID, TIMESTAMPAware
 
 
 # revision identifiers, used by Alembic.

@@ -14,14 +14,14 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.module]
-name = "cns"
+name = "jheep"
 
 [project]
-name = "jhee-cns"
+name = "jheep"
 authors = [
   { name = "Jinserk Baik", email = "support@jhee.group" }
 ]
-description = "JHEE CNS(Central Nervous System): AI/MLOps framework"
+description = "JHEEP: JHEE Platform"
 classifiers = [
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3.10",
@@ -71,10 +71,10 @@ dev = [
 ]
 
 [project.scripts]
-jhee = "cli:app"
+jheep = "cli:app"
 
 [project.urls]
-Documentation = "https://docs.jhee.group/cns"
+Documentation = "https://docs.jhee.group/jheep"
 
 [tool.flit.sdist]
 include = ["./static", "./locale"]

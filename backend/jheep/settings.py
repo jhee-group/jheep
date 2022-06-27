@@ -38,12 +38,12 @@ class Settings(BaseSettings):
     database_port: Optional[int] = None
     database_username: Optional[str] = None
     database_password: Optional[str] = None
-    database_name: Optional[str] = "jhee_cns"
+    database_name: Optional[str] = "jheep"
     database_ssl_mode: Optional[str] = None
     database_location: DirectoryPath = Path.cwd()
     database_pool_recycle_seconds: int = 600
 
-    csrf_cookie_name: str = "jhee_cns_csrftoken"
+    csrf_cookie_name: str = "jheep_csrftoken"
     csrf_cookie_secure: bool = True
 
     class Config:

@@ -4,11 +4,11 @@ import typer
 import uvicorn
 import alembic
 
-from cns.paths import ALEMBIC_CONFIG_FILE
-from cns.settings import settings, Environment
+from jheep.paths import ALEMBIC_CONFIG_FILE
+from jheep.settings import settings, Environment
 
 
-app = typer.Typer(help="JHEE CNS (Central Nervious System) Commands")
+app = typer.Typer(help="JHEEP Commands")
 
 
 def preprocess_for_alembic():
@@ -55,7 +55,7 @@ def run_server(
         reload, workers, log_level, debug = False, 8, log_level.lower(), False
 
     uvicorn.run(
-        "cns.main:app",
+        "jheep.main:app",
         host=host, port=port, workers=workers,
         reload=reload, log_level=log_level, debug=debug
     )
