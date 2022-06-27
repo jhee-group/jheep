@@ -23,6 +23,14 @@ fn_help()
     echo
 }
 
+fn_login_to_github()
+{
+    if [ -f ${JHEEP_PATH}/.github/.pat ]; then
+        . ${JHEEP_PATH}/.github/.pat
+        echo ${CR_PAT} | docker login ghcr.io -u ${CR_USER} --password-stdin
+    fi
+}
+
 ##########
 # main 
 
@@ -42,6 +50,10 @@ case $1 in
         ;;
     "build")
         ${docker_cmd} build
+        ;;
+    "push")
+        fn_login_to_github
+        ${docker_cmd} push
         ;;
     "psql")
         ${docker_cmd} exec db psql -U postgres ${@:2}
