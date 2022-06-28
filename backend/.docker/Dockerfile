@@ -2,6 +2,7 @@
 FROM python:3.10-slim
 
 ARG JHEEP_VERSION
+ARG SETTINGS_PATH .docker/.settings
 
 # set environment variables
 ENV DEBIAN_FRONTEND noninteractive
@@ -28,5 +29,5 @@ RUN pip install -U -e .
 
 # entrypoint
 #ENTRYPOINT jhee run
-COPY ./supervisord.conf /etc/supervisord.conf
+COPY ${SETTINGS_PATH}/supervisord.conf /etc/supervisord.conf
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]

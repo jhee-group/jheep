@@ -36,7 +36,9 @@ fn_login_to_github()
 
 [[ $# -lt 1 ]] && fn_help && exit 1
 
-docker_cmd="docker compose -f ${JHEEP_PATH}/docker-compose.yml"
+docker_file="${JHEEP_PATH}/.docker/docker-compose.yml"
+project_name="jheep-local"
+docker_cmd="docker compose -f ${docker_file} -p ${project_name}"
 
 case $1 in
     "up")

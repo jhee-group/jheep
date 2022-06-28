@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    expose:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=jhee_sale
+    volumes:
+      - localdb:/var/lib/postgresql/data
+
+  back:
+    image: ${DOCKER_REGISTRY}/jheep:latest
+    build: 
+      context: ${JHEEP_PATH}/backend
+      dockerfile: .docker/Dockerfile
+      args:
+        - GIT_REF=${GIT_REF}
+        - BACK_APP_DIR=${BACK_APP_DIR}
+        - SETTINGS_PATH=.docker/.settings
+    volumes:
+      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
+    ports:
+      - 8001:8001
+    environment:
+      - JHEEP_BACKEND_PATH=${BACK_APP_DIR}
+      - DATABASE_TYPE=POSTGRESQL
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=jhee_cns
+      - ENVIRONMENT=development
+    depends_on:
+      - db
+    working_dir: ${BACK_APP_DIR}
+    #command: uvicorn api.main:app --reload --workers 1 --host 0.0.0.0 --port 8001
+      
+volumes:
+  localdb:
+    driver: local
