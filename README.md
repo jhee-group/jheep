@@ -10,7 +10,8 @@ JHEEP (JHEE Platform) is a main infraware of AI/MLOps in a business scale.
 
 ### Docker image build
 ```sh
-$ jc build
+$ jc back build
+$ jc worker build
 ```
 
 ### Prepare database
@@ -22,14 +23,12 @@ $ jc up
 
 Use psql to create database. The default database name is `jheep`.
 ```sh
-$ jc psql
-postgres=# create database <database-name>;
-postgres=# \q
+$ jc db createdb
 ```
 
 Migrate initial database schema
 ```sh
-$ jc migrate
+$ jc back migrate
 ```
 
 ### Re-run env
