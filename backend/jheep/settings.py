@@ -38,7 +38,7 @@ class Settings(BaseSettings):
     database_port: Optional[int] = None
     database_username: Optional[str] = None
     database_password: Optional[str] = None
-    database_name: Optional[str] = "jheep"
+    database_name: Optional[str] = "jheep_db"
     database_ssl_mode: Optional[str] = None
     database_location: DirectoryPath = Path.cwd()
     database_pool_recycle_seconds: int = 600

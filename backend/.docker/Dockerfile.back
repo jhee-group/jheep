@@ -29,5 +29,5 @@ RUN pip install -U -e .
 
 # entrypoint
 #ENTRYPOINT jhee run
-COPY ${SETTINGS_PATH}/supervisord.conf /etc/supervisord.conf
+COPY ${SETTINGS_PATH}/supervisord.back.conf /etc/supervisord.conf
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]

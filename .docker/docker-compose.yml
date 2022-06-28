@@ -13,10 +13,10 @@ services:
       - localdb:/var/lib/postgresql/data
 
   back:
-    image: ${DOCKER_REGISTRY}/jheep:latest
+    image: ${DOCKER_REGISTRY}/jheep-back:latest
     build: 
       context: ${JHEEP_PATH}/backend
-      dockerfile: .docker/Dockerfile
+      dockerfile: .docker/Dockerfile.back
       args:
         - GIT_REF=${GIT_REF}
         - BACK_APP_DIR=${BACK_APP_DIR}
@@ -26,19 +26,60 @@ services:
     ports:
       - 8001:8001
     environment:
-      - JHEEP_BACKEND_PATH=${BACK_APP_DIR}
+      - JHEEP_PATH=${BACK_APP_DIR}
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
-      - DATABASE_NAME=jhee_cns
+      - DATABASE_NAME=jheep_db
       - ENVIRONMENT=development
     depends_on:
       - db
     working_dir: ${BACK_APP_DIR}
     #command: uvicorn api.main:app --reload --workers 1 --host 0.0.0.0 --port 8001
-      
+
+  worker:
+    image: ${DOCKER_REGISTRY}/jheep-worker:latest
+    build:
+      context: ${JHEEP_PATH}/backend
+      dockerfile: .docker/Dockerfile.worker
+      args:
+        - GIT_REF=${GIT_REF}
+        - USERNAME=${DOCKER_USER}
+        - USERID=${USERID}
+        - GROUPID=${GROUPID}
+        - BACK_APP_DIR=${BACK_APP_DIR}
+        - SETTINGS_PATH=.docker/.settings
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              device_ids: ['0', '1']
+#              capabilities: [gpu]
+#    ipc: host
+    shm_size: 2048M
+    user: ${USERID}:${GROUPID}
+    volumes:
+      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
+    environment:
+      - JHEEP_PATH=${BACK_APP_DIR}
+      - DATABASE_TYPE=POSTGRESQL
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=jheep_db
+      - ENVIRONMENT=development
+    depends_on:
+      - db
+    working_dir: ${BACK_APP_DIR}
+    #sysctls:
+    #    - net.ipv4.tcp_keepalive_time=200
+    #    - net.ipv4.tcp_keepalive_intvl=200
+    #    - net.ipv4.tcp_keepalive_probes=5
+
 volumes:
   localdb:
     driver: local
