@@ -20,30 +20,22 @@ fn_help()
     echo "Jinserk Baik <jinserk.baik@gmail.com>"
     echo "copyright (c) JHEE Group LLC"
     echo
-    echo "default usage: "
-    echo "  jc up                       run compose env in background"
-    echo "  jc down                     teardown compose env"
-    echo "  jc logs                     show logs from the compose env"
+    echo "default usage:"
+    echo "  jc up                               run compose env in background"
+    echo "  jc down                             teardown compose env"
+    echo "  jc logs                             show logs from the compose env"
     echo
-    echo "usage for db container: "
-    echo "  jc db logs                  show logs from the db container"
-    echo "  jc db psql [<args>]         psql env in the db container"
+    echo "usage for db container:"
+    echo "  jc db logs                          show logs from the db container"
+    echo "  jc db psql [<args>]                 psql env in the db container"
     echo
-    echo "usage for server container: "
-    echo "  jc server logs                show logs from the server container"
-    echo "  jc server build               build the server container"
-    echo "  jc server push                push the server container to the github packages"
-    echo "  jc server pull                pull the server container from the github packages"
-    echo "  jc server jheep [<args>]      exec the jheep cli command in the server container"
-    echo "  jc server bash [<args>]       exec bash in the server container"
-    echo
-    echo "usage for worker container: "
-    echo "  jc worker logs              show logs from the worker container"
-    echo "  jc worker build             build the worker container"
-    echo "  jc worker push              push the worker container to the github packages"
-    echo "  jc worker pull              pull the worker container from the github packages"
-    echo "  jc worker jheep [<args>]    exec the jheep cli command in the worker container"
-    echo "  jc worker bash [<args>]     exec bash in the worker container"
+    echo "usage for server/worker container:"
+    echo "  jc <container> logs                 show logs from the <container>"
+    echo "  jc <container> build                build the <container>"
+    echo "  jc <container> push                 push the <container> to the github packages"
+    echo "  jc <container> pull                 pull the <container> from the github packages"
+    echo "  jc <container> jheep [<args>]       exec the jheep cli command in the <container>"
+    echo "  jc <container> bash [<args>]        exec bash in the <container>"
     echo
 }
 
@@ -86,6 +78,7 @@ fn_server_cmd()
     [[ $# -lt 1 ]] && fn_help && exit 1
 
     container="server"
+    img="${DOCKER_REGISTRY}/jheep-server"
 
     case $1 in
         "logs")
@@ -97,6 +90,8 @@ fn_server_cmd()
         "push")
             fn_login_to_github
             ${docker_cmd} push ${container}
+            docker tag ${img}:latest ${img}:${GIT_REF}
+            docker push ${img}:${GIT_REF}
             ;;
         "pull")
             fn_login_to_github
@@ -119,6 +114,7 @@ fn_worker_cmd()
     [[ $# -lt 1 ]] && fn_help && exit 1
 
     container="worker"
+    img="${DOCKER_REGISTRY}/jheep-worker"
 
     case $1 in
         "logs")
@@ -130,6 +126,8 @@ fn_worker_cmd()
         "push")
             fn_login_to_github
             ${docker_cmd} push ${container}
+            docker tag ${img}:latest ${img}:${GIT_REF}
+            docker push ${img}:${GIT_REF}
             ;;
         "pull")
             fn_login_to_github
@@ -161,6 +159,18 @@ case $1 in
         ;;
     "logs")
         ${docker_cmd} logs -f
+        ;;
+    "build")
+        fn_server_cmd build
+        fn_worker_cmd build
+        ;;
+    "push")
+        fn_server_cmd push
+        fn_worker_cmd push
+        ;;
+    "pull")
+        fn_server_cmd pull
+        fn_worker_cmd pull
         ;;
     # container based cmd
     "db")
