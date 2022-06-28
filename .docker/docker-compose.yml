@@ -8,15 +8,15 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=jhee_sale
+      - POSTGRES_DB=jheep_db
     volumes:
       - localdb:/var/lib/postgresql/data
 
-  back:
-    image: ${DOCKER_REGISTRY}/jheep-back:latest
+  server:
+    image: ${DOCKER_REGISTRY}/jheep-server:latest
     build: 
       context: ${JHEEP_PATH}/backend
-      dockerfile: .docker/Dockerfile.back
+      dockerfile: .docker/Dockerfile.server
       args:
         - GIT_REF=${GIT_REF}
         - BACK_APP_DIR=${BACK_APP_DIR}

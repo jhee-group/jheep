@@ -34,14 +34,16 @@ class Settings(BaseSettings):
 
     database_type: DatabaseType = DatabaseType.POSTGRESQL
     database_url: Optional[str] = None
-    database_host: Optional[str] = None
-    database_port: Optional[int] = None
-    database_username: Optional[str] = None
-    database_password: Optional[str] = None
+    database_host: Optional[str] = db
+    database_port: Optional[int] = 5432
+    database_username: Optional[str] = postgres
+    database_password: Optional[str] = postgres
     database_name: Optional[str] = "jheep_db"
     database_ssl_mode: Optional[str] = None
     database_location: DirectoryPath = Path.cwd()
     database_pool_recycle_seconds: int = 600
+
+    redis_url: str = "redis://redis:6379"
 
     csrf_cookie_name: str = "jheep_csrftoken"
     csrf_cookie_secure: bool = True

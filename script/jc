@@ -29,21 +29,21 @@ fn_help()
     echo "  jc db logs                  show logs from the db container"
     echo "  jc db psql [<args>]         psql env in the db container"
     echo
-    echo "usage for back container: "
-    echo "  jc back logs                show logs from the back container"
-    echo "  jc back build               build the back container"
-    echo "  jc back push                push the back container to the github packages"
-    echo "  jc back pull                pull the back container from the github packages"
-    echo "  jc back jheep [<args>]      exec the jheep cli command in the back container"
-    echo "  jc back bash [<args>]       exec bash in the back container"
+    echo "usage for server container: "
+    echo "  jc server logs                show logs from the server container"
+    echo "  jc server build               build the server container"
+    echo "  jc server push                push the server container to the github packages"
+    echo "  jc server pull                pull the server container from the github packages"
+    echo "  jc server jheep [<args>]      exec the jheep cli command in the server container"
+    echo "  jc server bash [<args>]       exec bash in the server container"
     echo
     echo "usage for worker container: "
-    echo "  jc worker logs              show logs from the back container"
-    echo "  jc worker build             build the back container"
-    echo "  jc worker push              push the back container to the github packages"
-    echo "  jc worker pull              pull the back container from the github packages"
-    echo "  jc worker jheep [<args>]    exec the jheep cli command in the back container"
-    echo "  jc worker bash [<args>]     exec bash in the back container"
+    echo "  jc worker logs              show logs from the worker container"
+    echo "  jc worker build             build the worker container"
+    echo "  jc worker push              push the worker container to the github packages"
+    echo "  jc worker pull              pull the worker container from the github packages"
+    echo "  jc worker jheep [<args>]    exec the jheep cli command in the worker container"
+    echo "  jc worker bash [<args>]     exec bash in the worker container"
     echo
 }
 
@@ -81,11 +81,11 @@ fn_db_cmd()
     esac
 }
 
-fn_back_cmd()
+fn_server_cmd()
 {
     [[ $# -lt 1 ]] && fn_help && exit 1
 
-    container="back"
+    container="server"
 
     case $1 in
         "logs")
@@ -166,8 +166,8 @@ case $1 in
     "db")
         fn_db_cmd ${@:2}
         ;;
-    "back")
-        fn_back_cmd ${@:2}
+    "server")
+        fn_server_cmd ${@:2}
         ;;
     "worker")
         fn_worker_cmd ${@:2}

@@ -3,6 +3,7 @@ from argparse import Namespace
 import typer
 import uvicorn
 import alembic
+from dramatiq import cli as dcli
 
 from jheep.paths import ALEMBIC_CONFIG_FILE
 from jheep.settings import settings, Environment
@@ -39,7 +40,7 @@ def migrate_main():
         alembic.command.upgrade(config, revision="head")
 
 
-@app.command("run")
+@app.command("server")
 def run_server(
     host: str = "0.0.0.0",
     port: int = settings.port,
@@ -59,6 +60,20 @@ def run_server(
         host=host, port=port, workers=workers,
         reload=reload, log_level=log_level, debug=debug
     )
+
+
+@app.command(
+    "worker",
+    context_settings={
+        "allow_extra_args": True,
+        "ignore_unknown_options": True
+    },
+    add_help_option=False,
+)
+def run_worker(ctx: typer.Context):
+    parser = dcli.make_argument_parser()
+    args = parser.parse_args(ctx.args + ["jheep.worker"])
+    dcli.main(args)
 
 
 if __name__ == "__main__":
