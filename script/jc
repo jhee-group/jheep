@@ -24,6 +24,9 @@ fn_help()
     echo "  jc up                               run compose env in background"
     echo "  jc down                             teardown compose env"
     echo "  jc logs                             show logs from the compose env"
+    echo "  jc build                            build all docker images"
+    echo "  jc push                             push the latest images to the github packages"
+    echo "  jc pull                             pull the latest images from the github packages"
     echo
     echo "usage for db container:"
     echo "  jc db logs                          show logs from the db container"

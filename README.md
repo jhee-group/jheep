@@ -10,8 +10,7 @@ JHEEP (JHEE Platform) is a main infraware of AI/MLOps in a business scale.
 
 ### Docker image build
 ```sh
-$ jc back build
-$ jc worker build
+$ jc build
 ```
 
 ### Prepare database
