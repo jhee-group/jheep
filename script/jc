@@ -183,6 +183,18 @@ case $1 in
         fn_server_cmd pull
         fn_worker_cmd pull
         ;;
+    "createdb")
+        fn_db_cmd createdb
+        ;;
+    "dropdb")
+        fn_db_cmd dropdb
+        ;;
+    "makemigrations")
+        fn_server_cmd jheep makemigrations
+        ;;
+    "migrate")
+        fn_server_cmd jheep migrate
+        ;;
     # container based cmd
     "db")
         fn_db_cmd ${@:2}
