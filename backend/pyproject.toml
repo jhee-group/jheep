@@ -6,7 +6,7 @@ concurrency = ["thread", "gevent"]
 omit = ["migrations/*"]
 
 [tool.pytest.ini_options]
-markers = ["test_data", "workspace_host", "access_token", "authenticated_admin"]
+markers = ["test_data", ]
 asyncio_mode = "auto"
 
 [build-system]

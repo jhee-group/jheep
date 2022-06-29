@@ -11,7 +11,7 @@ export FRONT_APP_DIR="/frontend"
 
 docker_file="${JHEEP_PATH}/.docker/docker-compose.yml"
 project_name="jheep-dev"
-docker_cmd="docker compose -f ${docker_file} -p ${project_name}"
+docker_cmd="docker-compose -f ${docker_file} -p ${project_name}"
 
 fn_help()
 {
@@ -48,6 +48,12 @@ fn_login_to_github()
         . ${JHEEP_PATH}/.github/.pat
         echo ${CR_PAT} | docker login ghcr.io -u ${CR_USER} --password-stdin
     fi
+}
+
+fn_check_gitrepo ()
+{
+    git_test=$(git status --untracked-files=no --porcelain)
+    [[ -z $git_test ]] || echo -e "\n*** Be careful that you have a dirty code tree **\n"
 }
 
 fn_db_cmd()
@@ -88,6 +94,7 @@ fn_server_cmd()
             ${docker_cmd} logs ${container}
             ;;
         "build")
+            fn_check_gitrepo
             ${docker_cmd} build ${container}
             ;;
         "push")
@@ -124,6 +131,7 @@ fn_worker_cmd()
             ${docker_cmd} logs ${container}
             ;;
         "build")
+            fn_check_gitrepo
             ${docker_cmd} build ${container}
             ;;
         "push")
@@ -149,7 +157,7 @@ fn_worker_cmd()
 }
 
 ##########
-# main 
+# default command parser 
 
 [[ $# -lt 1 ]] && fn_help && exit 1
 
