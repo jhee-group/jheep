@@ -1,9 +1,9 @@
 from typing import Optional
 
 from sqlalchemy import UniqueConstraint
+from sqlmodel import SQLModel
 
 from .generics import CreatedUpdatedAt, UUIDModel
-from sqlmodel import SQLModel
 
 
 class SongBase(SQLModel):

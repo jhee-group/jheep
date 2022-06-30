@@ -1,8 +1,14 @@
 version: '3'
 
 services:
+  memcached:
+    image: memcached:latest
+    expose:
+      - 11211
+    command: ["-m", "8096"]
+
   db:
-    image: postgres
+    image: postgres:latest
     expose:
       - 5432
     environment:
@@ -10,7 +16,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=jheep_db
     volumes:
-      - localdb:/var/lib/postgresql/data
+      - jheep_db:/var/lib/postgresql/data
 
   redis:
     image: redis:latest
@@ -29,10 +35,13 @@ services:
         - SETTINGS_PATH=.settings
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
+      - ${JHEEP_PATH}/examples:/examples:rw
+      - jheep_data:/examples/.data
     ports:
       - 8001:8001
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
+      - JHEEP_EXAMPLES_PATH=/examples
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
@@ -43,6 +52,7 @@ services:
     depends_on:
       - db
       - redis
+      - memcached
     working_dir: ${BACK_APP_DIR}
     #command: uvicorn api.main:app --reload --workers 1 --host 0.0.0.0 --port 8001
 
@@ -70,8 +80,11 @@ services:
     user: ${USERID}:${GROUPID}
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
+      - ${JHEEP_PATH}/examples:/examples:rw
+      - jheep_data:/examples/.data
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
+      - JHEEP_EXAMPLES_PATH=/examples
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
@@ -82,6 +95,7 @@ services:
     depends_on:
       - db
       - redis
+      - memcached
     working_dir: ${BACK_APP_DIR}
     #sysctls:
     #    - net.ipv4.tcp_keepalive_time=200
@@ -89,5 +103,7 @@ services:
     #    - net.ipv4.tcp_keepalive_probes=5
 
 volumes:
-  localdb:
+  jheep_db:
+    driver: local
+  jheep_data:
     driver: local

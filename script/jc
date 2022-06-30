@@ -27,10 +27,16 @@ fn_help()
     echo "  jc build                            build all docker images"
     echo "  jc push                             push the latest images to the github packages"
     echo "  jc pull                             pull the latest images from the github packages"
+    echo "  jc createdb                         wrapper cmd to run createdb in db container"
+    echo "  jc dropdb                           wrapper cmd to run dropdb in db container"
+    echo "  jc makemigrations                   wrapper cmd to run 'jheep makemigrations' in server container"
+    echo "  jc migrate                          wrapper cmd to run 'jheep migrate' in server container"
     echo
     echo "usage for db container:"
     echo "  jc db logs                          show logs from the db container"
     echo "  jc db psql [<args>]                 psql env in the db container"
+    echo "  jc db createdb [<args>]             run createdb in the db container"
+    echo "  jc db dropdb [<args>]               run dropdb in the db container"
     echo
     echo "usage for server/worker container:"
     echo "  jc <container> logs                 show logs from the <container>"
