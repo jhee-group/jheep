@@ -49,12 +49,11 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=jheep_db
       - ENVIRONMENT=development
+    working_dir: ${BACK_APP_DIR}
     depends_on:
       - db
       - redis
       - memcached
-    working_dir: ${BACK_APP_DIR}
-    #command: uvicorn api.main:app --reload --workers 1 --host 0.0.0.0 --port 8001
 
   worker:
     image: ${DOCKER_REGISTRY}/jheep-worker:latest
@@ -85,6 +84,8 @@ services:
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
       - JHEEP_EXAMPLES_PATH=/examples
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - NVIDIA_VISIBLE_DEVICES=all
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
@@ -92,11 +93,11 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=jheep_db
       - ENVIRONMENT=development
+    working_dir: ${BACK_APP_DIR}
     depends_on:
       - db
       - redis
       - memcached
-    working_dir: ${BACK_APP_DIR}
     #sysctls:
     #    - net.ipv4.tcp_keepalive_time=200
     #    - net.ipv4.tcp_keepalive_intvl=200

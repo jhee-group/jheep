@@ -3,7 +3,7 @@
 import os
 from pathlib import Path
 
-JUPYTER_ROOT = os.environ.get("JUPYTER_ROOT", "/examples")
+JUPYTER_ROOT = os.environ.get("JHEEP_EXAMPLES_PATH", "/examples")
 
 #------------------------------------------------------------------------------
 # Application(SingletonConfigurable) configuration
