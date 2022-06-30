@@ -35,7 +35,7 @@ ENV HOME=/home/${USERNAME}
 WORKDIR ${HOME}
 
 RUN mkdir -p ${HOME}/.local/bin ${HOME}/.local/lib \
- && chown -R ${USERID}:${GROUPID} ${HOME}/.local
+ && sudo chown -R ${USERID}:${GROUPID} ${HOME}/.local
  
 # pyenv setting
 ARG JHEEP_VERSION
@@ -56,7 +56,7 @@ RUN pyenv update \
  && pyenv global ${PYTHON_VERSION}
  
 RUN mkdir -p ${HOME}/.pip \
- && chown -R ${USERID}:${GROUPID} ${HOME}/.pip
+ && sudo chown -R ${USERID}:${GROUPID} ${HOME}/.pip
 COPY --chown=${USERID}:${GROUPID} ${SETTINGS_PATH}/pip.conf ${HOME}/.pip/pip.conf
 RUN pip install --upgrade pip 
 
@@ -64,11 +64,11 @@ RUN pip install --upgrade pip
 RUN pip install --upgrade ipython jupyterlab
 
 RUN mkdir -p ${HOME}/.ipython/profile_default
-RUN chown -R ${USERID}:${GROUPID} ${HOME}/.ipython
+RUN sudo chown -R ${USERID}:${GROUPID} ${HOME}/.ipython
 COPY --chown=${USERID}:${GROUPID} ${SETTINGS_PATH}/ipython_config.py ${HOME}/.ipython/profile_default/ipython_config.py
 
 RUN mkdir -p ${HOME}/.jupyter/lab/user-settings
-RUN chown -R ${USERID}:${GROUPID} ${HOME}/.jupyter
+RUN sudo chown -R ${USERID}:${GROUPID} ${HOME}/.jupyter
 COPY --chown=${USERID}:${GROUPID} ${SETTINGS_PATH}/jupyter_server_config.py ${HOME}/.jupyter/jupyter_server_config.py
 
 # set working directory
