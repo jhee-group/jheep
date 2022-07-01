@@ -16,7 +16,7 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=jheep_db
     volumes:
-      - jheep_db:/var/lib/postgresql/data
+      - jheep_db:/var/lib/postgresql/data:rw
 
   redis:
     image: redis:latest
