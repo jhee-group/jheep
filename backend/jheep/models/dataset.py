@@ -6,15 +6,15 @@ from sqlmodel import SQLModel, Field
 from .generics import CreatedUpdatedAt, UUIDModel
 
 
-class ModelBase(SQLModel):
+class DatasetBase(SQLModel):
     __table_args__ = (UniqueConstraint("url"), )
     name: str
     url: AnyUrl | FileUrl
 
 
-class Model(ModelBase, UUIDModel, CreatedUpdatedAt, table=True):
+class Dataset(DatasetBase, UUIDModel, CreatedUpdatedAt, table=True):
     url: AnyUrl | FileUrl = Field(sa_column=Column(URLType))
 
 
-class ModelCreate(ModelBase):
+class DatasetCreate(DatasetBase):
     pass
