@@ -3,8 +3,9 @@
 JHEEP (JHEE Platform) is a main infraware of AI/MLOps in a business scale.
 
 ### Ports
-- Front: 8000
-- CNS API: 8001
+- Front: 8800
+- API server: 8801
+- Jupyterlab server: 8899
 
 ## How to use
 
@@ -48,4 +49,4 @@ $ jc down
 $ jc up
 ```
 
-Test if backend api works: http://localhost:8001/v1/docs
+Test if backend api works: http://localhost:8801/v1/docs

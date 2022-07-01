@@ -38,7 +38,7 @@ services:
       - ${JHEEP_PATH}/examples:/examples:rw
       - jheep_data:/examples/.data
     ports:
-      - 8001:8001
+      - 8801:8801
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
       - JHEEP_EXAMPLES_PATH=/examples
@@ -86,6 +86,7 @@ services:
       - JHEEP_EXAMPLES_PATH=/examples
       - NVIDIA_DRIVER_CAPABILITIES=all
       - NVIDIA_VISIBLE_DEVICES=all
+      - JUPYTER_PORT=8899
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
@@ -93,6 +94,8 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=jheep_db
       - ENVIRONMENT=development
+    ports:
+      - 8899:8899
     working_dir: ${BACK_APP_DIR}
     depends_on:
       - db

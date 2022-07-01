@@ -27,7 +27,7 @@ class Environment(str, Enum):
 class Settings(BaseSettings):
     environment: Environment = Environment.DEVELOPMENT
     host: str = "localhost"
-    port: int = 8001
+    port: int = 8801
     allow_origin_regex: str = "http://.*localhost:[0-9]+"
     log_level: str = "INFO"
     unit_tests: bool = False
