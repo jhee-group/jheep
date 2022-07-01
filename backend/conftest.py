@@ -9,22 +9,23 @@ from typing import (
     Optional,
     Tuple,
 )
+import uuid
 
 import pytest
 from sqlalchemy_utils import create_database, drop_database
+from sqlmodel import SQLModel
 
 from jheep.db import AsyncConnection, AsyncEngine, AsyncSession
 from jheep.db.types import DatabaseConnectionParameters, DatabaseType, get_driver
 from jheep.db.engine import create_engine
-from jheep.models import Base
 from jheep.settings import settings
 
 from tests.data import TestData, data_mapping
+from tests.types import GetTestDatabase
 
 
-GetTestDatabase = Callable[
-    ..., AsyncContextManager[Tuple[DatabaseConnectionParameters, DatabaseType]]
-]
+TEST_DB_HOST: str = "localhost"
+TEST_DB_NAME: str = "jheep_test"
 
 
 @pytest.fixture(scope="session")
@@ -39,13 +40,16 @@ def get_test_database() -> GetTestDatabase:
 
     @contextlib.asynccontextmanager
     async def _get_test_database(
-        *, name: str = "jheep_test"
+        *,
+        host: str = TEST_DB_HOST,
+        database: str = TEST_DB_NAME,
     ) -> AsyncGenerator[Tuple[DatabaseConnectionParameters, DatabaseType], None]:
         url, connect_args = settings.get_database_connection_parameters(False)
-        url = url.set(database=name)
-        assert url.database == name
+        url = url.set(host=host, database=database)
+        assert url.host == host
+        assert url.database == database
         create_database(url)
-        yield ((url, connect_args), settings.database_type)
+        yield (url, connect_args, settings.database_type)
         drop_database(url)
 
     return _get_test_database
@@ -55,8 +59,7 @@ def get_test_database() -> GetTestDatabase:
 async def test_database(
     get_test_database: GetTestDatabase,
 ) -> AsyncGenerator[Tuple[DatabaseConnectionParameters, DatabaseType], None]:
-    async with get_test_database() as (database_connection_parameters, database_type):
-        url, connect_args = database_connection_parameters
+    async with get_test_database() as (url, connect_args, database_type):
         url = url.set(drivername=get_driver(database_type, asyncio=True))
         yield (url, connect_args), database_type
 
@@ -81,17 +84,26 @@ async def test_connection(
 
 @pytest.fixture(scope="session")
 async def create_test_db(test_connection: AsyncConnection):
-    await test_connection.run_sync(Base.metadata.create_all)
+    await test_connection.run_sync(SQLModel.metadata.create_all)
 
 
 @pytest.fixture(scope="session")
 async def test_session(
-    test_connection: AsyncConnection, create_main_db
+    test_connection: AsyncConnection, create_test_db
 ) -> AsyncGenerator[AsyncSession, None]:
     async with AsyncSession(bind=test_connection, expire_on_commit=False) as session:
         await session.begin_nested()
         yield session
         await session.rollback()
+
+
+@pytest.fixture(scope="session")
+def test_session_manager(test_session: AsyncSession):
+    @contextlib.asynccontextmanager
+    async def _test_session_manager(*args, **kwargs):
+        yield test_session
+
+    return _test_session_manager
 
 
 @pytest.fixture(scope="session")
@@ -104,3 +116,8 @@ async def test_data(test_connection: AsyncConnection) -> TestData:
         await session.commit()
     await test_connection.commit()
     yield data_mapping
+
+
+@pytest.fixture
+def not_existing_uuid() -> uuid.UUID:
+    return uuid.uuid4()
