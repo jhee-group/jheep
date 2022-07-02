@@ -1,14 +1,6 @@
 import asyncio
 import contextlib
-from typing import (
-    Any,
-    AsyncContextManager,
-    AsyncGenerator,
-    Callable,
-    Dict,
-    Optional,
-    Tuple,
-)
+from typing import AsyncGenerator, Tuple
 import uuid
 
 import pytest
@@ -21,7 +13,7 @@ from jheep.db.engine import create_engine
 from jheep.settings import settings
 
 from tests.data import TestData, data_mapping
-from tests.types import GetTestDatabase
+from tests.types import GetTestDatabase, GetSessionManager
 
 
 TEST_DB_HOST: str = "localhost"
@@ -99,6 +91,7 @@ async def test_session(
 
 @pytest.fixture(scope="session")
 def test_session_manager(test_session: AsyncSession):
+
     @contextlib.asynccontextmanager
     async def _test_session_manager(*args, **kwargs):
         yield test_session
@@ -108,13 +101,12 @@ def test_session_manager(test_session: AsyncSession):
 
 @pytest.fixture(scope="session")
 @pytest.mark.asyncio
-async def test_data(test_connection: AsyncConnection) -> TestData:
-    async with AsyncSession(bind=test_connection, expire_on_commit=False) as session:
+async def test_data(test_session_manager: GetSessionManager) -> TestData:
+    async with test_session_manager() as session:
         for model in data_mapping.values():
             for object in model.values():
                 session.add(object)
         await session.commit()
-    await test_connection.commit()
     yield data_mapping
 
 

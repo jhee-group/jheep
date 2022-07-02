@@ -17,19 +17,19 @@ now = datetime.now(timezone.utc)
 class TestData(TypedDict):
     __test__ = False
 
-    models: ModelMapping[Model]
+    model: ModelMapping[Model]
 
 
-models: ModelMapping[Model] = {
+model: ModelMapping[Model] = {
     "basic": Model(
         id=uuid.uuid4(),
         name="basic",
-        url="/tmp/basic",
+        url="file:///tmp/basic",
     ),
 }
 
 data_mapping: TestData = {
-    "models": models,
+    "model": model,
 }
 
 __all__ = [
