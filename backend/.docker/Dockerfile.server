@@ -25,7 +25,7 @@ RUN pip install --upgrade pip
 #COPY ./requirements.txt ${BACK_APP_DIR}
 #RUN pip install -U -r ${BACK_APP_DIR}/requirements.txt
 COPY . ${BACK_APP_DIR}
-RUN pip install -U -e .[dev]
+RUN pip install -U -e .
 
 # entrypoint
 #ENTRYPOINT jhee run
