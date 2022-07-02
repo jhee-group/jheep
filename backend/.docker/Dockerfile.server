@@ -2,7 +2,7 @@
 FROM python:3.10-slim
 
 ARG JHEEP_VERSION
-ARG SETTINGS_PATH .docker/.settings
+ARG SETTINGS_PATH .settings
 
 # set environment variables
 ENV DEBIAN_FRONTEND noninteractive

@@ -43,7 +43,7 @@ ARG GIT_REF=12345678
 ENV GIT_REF=${GIT_REF}                                                                                                                                                                                                                                                        
 RUN echo "GIT_REF=${GIT_REF}"
 
-ARG SETTINGS_PATH .docker/.settings
+ARG SETTINGS_PATH .settings
 ARG PYTHON_VERSION=3.10.5
 
 RUN curl https://pyenv.run | bash \
