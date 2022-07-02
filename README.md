@@ -50,3 +50,9 @@ $ jc up
 ```
 
 Test if backend api works: http://localhost:8801/v1/docs
+
+# Acknowledgement
+
+The base structure of this project has been inspired by the project [Fief](https://github.com/fief-dev/fief.git).\
+Thanks to the author and the contributers.\
+If their license conflicts to this, their rights are prior to ours.
