@@ -1,4 +1,4 @@
-from sqlalchemy.ext.declarative import declarative_base
+from sqlmodel import SQLModel
 
 from .generics import M_UUID, M
 from .models import Model, ModelCreate
@@ -6,10 +6,7 @@ from .models import Model, ModelCreate
 from .test import Song, SongCreate
 
 
-Base = declarative_base()
-
 __all__ = [
-    "Base",
     "M",
     "M_UUID",
     "Model",

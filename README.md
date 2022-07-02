@@ -1,6 +1,6 @@
 # JHEEP: JHEE Platform
 
-JHEEP (JHEE Platform) is a main infraware of AI/MLOps in a business scale.
+JHEEP (JHEE Platform) is targeting a business-scale AI/MLOps platform.
 
 ### Ports
 - Front: 8800
@@ -12,7 +12,7 @@ JHEEP (JHEE Platform) is a main infraware of AI/MLOps in a business scale.
 ### Prerequisites
 
 You need a properly setup of
-  - `docker` with `docker compose v2`
+  - `docker`
   - `direnv`
 
 Please do after clone
