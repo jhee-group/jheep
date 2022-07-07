@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 from fastapi_versioning import version
 
-from sqlalchemy.future import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlmodel import select
 
 from ..db.main import get_session
 from ..models import Song, SongCreate

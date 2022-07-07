@@ -9,7 +9,6 @@ from pydantic import (
     root_validator,
     validator,
 )
-from sqlalchemy import engine
 
 from .db.types import (
     DatabaseConnectionParameters,

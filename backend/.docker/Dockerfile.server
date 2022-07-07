@@ -17,11 +17,16 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
  
 # set working directory
+ENV HOME=/root
 ENV BACK_APP_DIR /backend
 WORKDIR ${BACK_APP_DIR}
 
 # install jheep
 RUN pip install --upgrade pip
+
+RUN mkdir -p ${HOME}/.ipython/profile_default
+COPY ${SETTINGS_PATH}/ipython_config.py ${HOME}/.ipython/profile_default/ipython_config.py
+
 #COPY ./requirements.txt ${BACK_APP_DIR}
 #RUN pip install -U -r ${BACK_APP_DIR}/requirements.txt
 COPY . ${BACK_APP_DIR}

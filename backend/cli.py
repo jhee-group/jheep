@@ -6,7 +6,7 @@ import alembic
 from dramatiq import cli as dcli
 
 from jheep.paths import ALEMBIC_CONFIG_FILE
-from jheep.settings import settings, Environment
+from jheep.config import settings, Environment
 
 
 app = typer.Typer(help="JHEEP Commands")

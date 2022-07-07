@@ -1,13 +1,14 @@
 import logging
 import asyncio
-from typing import AsyncContextManager, Callable, ClassVar
+from typing import AsyncContextManager, AsyncGenerator, Callable, ClassVar
 from urllib.parse import urlparse
 
+from sqlalchemy.ext.asyncio import AsyncSession
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker
 
-from ..db.engine import AsyncSession, create_async_session_maker, create_engine
-from ..settings import settings
+from ..db.main import get_session_manager
+from ..config import settings
 
 
 logger = logging.getLogger(__name__)
@@ -32,11 +33,6 @@ def send_task(task: dramatiq.Actor, *args, **kwargs):
     task.send(*args, **kwargs)
 
 
-def get_session_task() -> AsyncContextManager[AsyncSession]:
-    engine = create_engine(settings.get_database_connection_parameters())
-    return create_async_session_maker(engine)()
-
-
 class TaskError(Exception):
     pass
 
@@ -46,7 +42,7 @@ class TaskBase:
 
     def __init__(
         self,
-        get_session: Callable[..., AsyncContextManager[AsyncSession]] = get_session_task,
+        get_session: Callable[..., AsyncContextManager[AsyncGenerator[AsyncSession, None]]] = get_session_manager,
     ) -> None:
         self.get_session = get_session
 

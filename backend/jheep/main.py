@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi_versioning import VersionedFastAPI
 
 from .routers import router
-from .settings import settings, Environment
+from .config import settings, Environment
 from .paths import STATIC_DIRECTORY
 
 

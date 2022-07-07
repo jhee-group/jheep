@@ -1,16 +1,16 @@
 from sqlalchemy import event
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
+import sqlalchemy.ext.asyncio as asa
 from sqlalchemy.orm import sessionmaker
 
 from .types import DatabaseConnectionParameters
-from ..settings import settings
+from ..config import settings
 
 
-def create_engine(
+def create_async_engine(
     database_connection_parameters: DatabaseConnectionParameters,
-) -> AsyncEngine:
+) -> asa.AsyncEngine:
     database_url, connect_args = database_connection_parameters
-    engine = create_async_engine(
+    engine = asa.create_async_engine(
         database_url,
         connect_args=connect_args,
         echo=False,
@@ -39,11 +39,11 @@ def create_engine(
     return engine
 
 
-def create_async_session_maker(engine: AsyncEngine):
-    return sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+def create_async_session_maker(engine: asa.AsyncEngine):
+    return sessionmaker(engine, class_=asa.AsyncSession, expire_on_commit=False)
 
 
 __all__ = [
-    "create_engine",
+    "create_async_engine",
     "create_async_session_maker",
 ]

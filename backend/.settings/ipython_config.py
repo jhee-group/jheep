@@ -33,6 +33,7 @@
 c.InteractiveShellApp.exec_lines = [
     '%load_ext autoreload',
     '%autoreload 2',
+    '%autoawait',
 ]
 
 ## A list of dotted module names of IPython extensions to load.

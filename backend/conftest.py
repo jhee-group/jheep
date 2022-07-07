@@ -2,15 +2,17 @@ import asyncio
 import contextlib
 from typing import AsyncGenerator, Tuple
 import uuid
+import aiofiles
+from pathlib import Path
 
 import pytest
 from sqlalchemy_utils import create_database, drop_database
+from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, AsyncSession
 from sqlmodel import SQLModel
 
-from jheep.db import AsyncConnection, AsyncEngine, AsyncSession
 from jheep.db.types import DatabaseConnectionParameters, DatabaseType, get_driver
-from jheep.db.engine import create_engine
-from jheep.settings import settings
+from jheep.db.engine import create_async_engine
+from jheep.config import settings
 
 from tests.data import TestData, data_mapping
 from tests.types import GetTestDatabase, GetSessionManager
@@ -61,7 +63,7 @@ async def test_engine(
     test_database: Tuple[DatabaseConnectionParameters, DatabaseType],
 ) -> AsyncGenerator[AsyncEngine, None]:
     database_connection_parameters, _ = test_database
-    engine = create_engine(database_connection_parameters)
+    engine = create_async_engine(database_connection_parameters)
     yield engine
     await engine.dispose()
 
@@ -101,7 +103,23 @@ def test_session_manager(test_session: AsyncSession):
 
 @pytest.fixture(scope="session")
 @pytest.mark.asyncio
-async def test_data(test_session_manager: GetSessionManager) -> TestData:
+async def test_file() -> None:
+    filepath = data_mapping["model"]["basic-model"].path
+    async with aiofiles.tempfile.TemporaryDirectory() as tmpd:
+        path = Path(tmpd, filepath)
+        path.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+        async with aiofiles.open(path, 'wb') as tmpf:
+            await tmpf.write(b"1234567890")
+        yield tmpd
+
+
+@pytest.fixture(scope="session")
+@pytest.mark.asyncio
+async def test_data(
+    test_session_manager: GetSessionManager,
+    test_file: str
+) -> TestData:
+    data_mapping["modelstore"]["local"].url = f"file://{test_file}"
     async with test_session_manager() as session:
         for model in data_mapping.values():
             for object in model.values():
