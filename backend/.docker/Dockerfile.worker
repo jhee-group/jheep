@@ -38,11 +38,6 @@ RUN mkdir -p ${HOME}/.local/bin ${HOME}/.local/lib \
  && sudo chown -R ${USERID}:${GROUPID} ${HOME}/.local
  
 # pyenv setting
-ARG JHEEP_VERSION
-ARG GIT_REF=12345678                                                                                                                                                                                                                                                          
-ENV GIT_REF=${GIT_REF}                                                                                                                                                                                                                                                        
-RUN echo "GIT_REF=${GIT_REF}"
-
 ARG SETTINGS_PATH .settings
 ARG PYTHON_VERSION=3.10.5
 
@@ -76,6 +71,11 @@ RUN sudo chown -R ${USERID}:${GROUPID} ${HOME}/.jupyter
 COPY --chown=${USERID}:${GROUPID} ${SETTINGS_PATH}/jupyter_server_config.py ${HOME}/.jupyter/jupyter_server_config.py
 
 # set working directory
+ARG JHEEP_VERSION
+ARG GIT_REF=12345678
+ENV GIT_REF=${GIT_REF}
+RUN echo "GIT_REF=${GIT_REF}"
+
 ENV BACK_APP_DIR /backend
 WORKDIR ${BACK_APP_DIR}
 

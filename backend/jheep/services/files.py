@@ -8,12 +8,17 @@ from fs import open_fs
 from fs.errors import InvalidPath
 
 
-def validate_url(url: furl | Path):
-    fs = open_fs(str(url))
+def validate_url(url: str):
     try:
-        fs.validatepath()
+        fu = furl(url)
+        root = str(f"{fu.scheme}://{fu.netloc}/")
+        path = str(fu.path)
+        fs = open_fs(root)
+        fs.validatepath(path)
         return True
     except InvalidPath:
+        return False
+    except:
         return False
 
 

@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: 74395d22ff71
+Revision ID: 768887c3d309
 Revises: 
-Create Date: 2022-07-06 18:43:15.746716
+Create Date: 2022-07-08 03:15:35.760604
 
 """
 from alembic import op
@@ -13,7 +13,7 @@ import jheep
 
 
 # revision identifiers, used by Alembic.
-revision = '74395d22ff71'
+revision = '768887c3d309'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -25,7 +25,7 @@ def upgrade() -> None:
     sa.Column('id', sqlalchemy_utils.types.uuid.UUIDType(), nullable=False),
     sa.Column('created_at', jheep.models.types.TIMESTAMPAware(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', jheep.models.types.TIMESTAMPAware(timezone=True), server_default=sa.text('now()'), nullable=False),
-    sa.Column('url', sqlalchemy_utils.types.url.URLType(), nullable=False),
+    sa.Column('url', sa.String(), nullable=False),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('url')

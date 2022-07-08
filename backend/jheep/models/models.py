@@ -1,15 +1,15 @@
-import asyncio
 from pathlib import Path
 
 from pydantic import AnyUrl, FileUrl, validator
 from sqlalchemy import Column, UniqueConstraint
+from sqlalchemy.types import String
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy_utils import URLType
+#from sqlalchemy_utils import URLType
 from sqlmodel import SQLModel, Field, Relationship, select
 
 from ..services.files import validate_url, get_file_contents, get_file_sha256_hash
-from ..db.main import get_session_manager
+#from ..db.main import get_session_manager
 from .generics import UUID4, CreatedUpdatedAt, UUIDModel
 
 
@@ -29,7 +29,7 @@ class ModelStoreBase(SQLModel):
 
 class ModelStore(ModelStoreBase, UUIDModel, CreatedUpdatedAt, table=True):
 
-    url: AnyUrl | FileUrl = Field(sa_column=Column(URLType, nullable=False))
+    url: AnyUrl | FileUrl = Field(sa_column=Column(String, nullable=False))
     models: list["Model"] = Relationship(back_populates="modelstore")
 
 
@@ -37,20 +37,16 @@ class ModelStoreCreate(ModelStoreBase):
     pass
 
 
-class ModelStoreRead(ModelStoreBase, UUIDModel, CreatedUpdatedAt):
-    pass
-
-
 class ModelBase(SQLModel):
     name: str
-    path: str
+    path: Path
     modelstore_id: UUID4 | None = Field(default=None, foreign_key="modelstore.id")
 
 
 class Model(ModelBase, UUIDModel, CreatedUpdatedAt, table=True):
     __table_args__ = (UniqueConstraint("modelstore_id", "path"), )
 
-    modelstore: ModelStore | None = Relationship(back_populates="models")
+    modelstore: ModelStore = Relationship(back_populates="models")
 
     """
     @validator('path')
@@ -99,3 +95,4 @@ class Model(ModelBase, UUIDModel, CreatedUpdatedAt, table=True):
 
 class ModelCreate(ModelBase):
     pass
+
