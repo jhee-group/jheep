@@ -1,3 +1,5 @@
+from typing import Tuple, Dict
+
 import ssl
 from enum import Enum
 from pathlib import Path
@@ -31,18 +33,18 @@ class MySQLSSLMode(str, Enum):
 
 SSLMode = PostreSQLSSLMode | MySQLSSLMode
 
-SSL_MODES: dict[DatabaseType, Type[SSLMode]] = {
+SSL_MODES: Dict[DatabaseType, Type[SSLMode]] = {
     DatabaseType.POSTGRESQL: PostreSQLSSLMode,
     DatabaseType.MYSQL: MySQLSSLMode,
 }
 
-SYNC_DRIVERS: dict[DatabaseType, str] = {
+SYNC_DRIVERS: Dict[DatabaseType, str] = {
     DatabaseType.POSTGRESQL: "postgresql",
     DatabaseType.MYSQL: "mysql+pymysql",
     DatabaseType.SQLITE: "sqlite",
 }
 
-ASYNC_DRIVERS: dict[DatabaseType, str] = {
+ASYNC_DRIVERS: Dict[DatabaseType, str] = {
     DatabaseType.POSTGRESQL: "postgresql+asyncpg",
     DatabaseType.MYSQL: "mysql+aiomysql",
     DatabaseType.SQLITE: "sqlite+aiosqlite",
@@ -55,8 +57,8 @@ def get_driver(type: DatabaseType, *, asyncio: bool) -> str:
 
 
 def get_ssl_mode_parameters(
-    drivername: str, ssl_mode: str, query: dict[str, str], connect_args: dict
-) -> tuple[dict[str, str], dict]:
+    drivername: str, ssl_mode: str, query: Dict[str, str], connect_args: Dict
+) -> Tuple[Dict[str, str], Dict]:
     if ssl_mode in [PostreSQLSSLMode.DISABLE, MySQLSSLMode.DISABLED]:
         return query, connect_args
 
@@ -85,7 +87,7 @@ def get_ssl_mode_parameters(
     return query, connect_args
 
 
-DatabaseConnectionParameters = tuple[engine.URL, dict]
+DatabaseConnectionParameters = Tuple[engine.URL, Dict]
 
 
 def create_database_connection_parameters(
@@ -102,8 +104,8 @@ def create_database_connection_parameters(
     ssl_mode: str | None = None,
 ) -> DatabaseConnectionParameters:
     drivername = get_driver(type, asyncio=asyncio)
-    query: dict[str, str] = {}
-    connect_args: dict = {}
+    query: Dict[str, str] = {}
+    connect_args: Dict = {}
 
     if ssl_mode:
         query, connect_args = get_ssl_mode_parameters(

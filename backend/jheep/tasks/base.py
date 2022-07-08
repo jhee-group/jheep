@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker
 
-from ..db.main import get_session_manager
+from ..db.main import get_async_session_manager
 from ..config import settings
 
 
@@ -42,7 +42,7 @@ class TaskBase:
 
     def __init__(
         self,
-        get_session: Callable[..., AsyncContextManager[AsyncGenerator[AsyncSession, None]]] = get_session_manager,
+        get_session: Callable[..., AsyncContextManager[AsyncGenerator[AsyncSession, None]]] = get_async_session_manager,
     ) -> None:
         self.get_session = get_session
 
