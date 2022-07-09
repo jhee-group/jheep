@@ -70,6 +70,7 @@ dev = [
   "pytest-cov",
   "pytest-asyncio",
   "pytest-mock",
+  "pytest-fastapi-deps",
   "sqlalchemy-utils",
   "tryceratops",
 ]

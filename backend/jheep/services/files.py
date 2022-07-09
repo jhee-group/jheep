@@ -22,14 +22,14 @@ def validate_url(url: str):
         return False
 
 
-async def get_file_contents(path: Path, chunk_size: int = -1) -> AsyncGenerator[bytes, None]:
-    async with aiofiles.open(path, 'rb') as f:
+async def get_file_contents(url: furl, chunk_size: int = -1) -> AsyncGenerator[bytes, None]:
+    async with aiofiles.open(str(url.path), 'rb') as f:
         chunk = await f.read(chunk_size)
         yield chunk
 
 
-async def get_file_sha256_hash(path: Path) -> str:
+async def get_file_sha256_hash(url: furl) -> str:
     chksum_hash = hashlib.sha256()
-    async for chunk in get_file_contents(path, 4096):
+    async for chunk in get_file_contents(url, 4096):
         chksum_hash.update(chunk)
     return chksum_hash.hexdigest()

@@ -1,9 +1,13 @@
+import os
 import asyncio
 import contextlib
 from typing import AsyncGenerator, Tuple
 import uuid
 import aiofiles
 from pathlib import Path
+
+os.environ["ENVIRONMENT"] = "test"
+
 
 import pytest
 from sqlalchemy_utils import create_database, drop_database
@@ -18,10 +22,6 @@ from tests.data import TestData, data_mapping
 from tests.types import GetTestDatabase, GetSessionManager
 
 
-TEST_DB_HOST: str = "localhost"
-TEST_DB_NAME: str = "jheep_test"
-
-
 @pytest.fixture(scope="session")
 def event_loop():
     loop = asyncio.new_event_loop()
@@ -33,15 +33,8 @@ def event_loop():
 def get_test_database() -> GetTestDatabase:
 
     @contextlib.asynccontextmanager
-    async def _get_test_database(
-        *,
-        host: str = TEST_DB_HOST,
-        database: str = TEST_DB_NAME,
-    ) -> AsyncGenerator[Tuple[DatabaseConnectionParameters, DatabaseType], None]:
+    async def _get_test_database() -> AsyncGenerator[Tuple[DatabaseConnectionParameters, DatabaseType], None]:
         url, connect_args = settings.get_database_connection_parameters(False)
-        url = url.set(host=host, database=database)
-        assert url.host == host
-        assert url.database == database
         create_database(url)
         yield (url, connect_args, settings.database_type)
         drop_database(url)
@@ -103,29 +96,30 @@ def test_session_manager(test_session: AsyncSession):
 
 @pytest.fixture(scope="session")
 @pytest.mark.asyncio
-async def test_file() -> None:
+async def test_file():
     filepath = data_mapping["model"]["basic-model"].path
     async with aiofiles.tempfile.TemporaryDirectory() as tmpd:
         path = Path(tmpd, filepath)
         path.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
         async with aiofiles.open(path, 'wb') as tmpf:
             await tmpf.write(b"1234567890")
-        yield tmpd
+        data_mapping["modelstore"]["local"].url = f"file://{tmpd}"
+        yield
 
 
 @pytest.fixture(scope="session")
 @pytest.mark.asyncio
-async def test_data(
+async def test_env(
     test_session_manager: GetSessionManager,
-    test_file: str
-) -> TestData:
-    data_mapping["modelstore"]["local"].url = f"file://{test_file}"
+    test_file,
+) -> Tuple[AsyncSession, TestData]:
     async with test_session_manager() as session:
         for model in data_mapping.values():
-            for object in model.values():
-                session.add(object)
+            for obj in model.values():
+                session.add(obj)
         await session.commit()
-    yield data_mapping
+        print(data_mapping)
+        yield session, data_mapping
 
 
 @pytest.fixture

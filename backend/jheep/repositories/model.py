@@ -41,13 +41,13 @@ class ModelRepository(BaseRepository[Model], UUIDRepositoryMixin[Model]):
         store_repo = ModelStoreRepository(self.session)
         statement = select(ModelStore).where(ModelStore.id == object.modelstore_id)
         try:
-            store = store_repo.get_one_or_none(statement)
-            return store.url
+            store = await store_repo.get_one_or_none(statement)
+            return furl(store.url)
         except NoResultFound:
             return None
 
-    async def _get_full_url(self, object: M) -> Path | None:
-        store_url = self._get_store_url(object)
+    async def _get_full_url(self, object: M) -> furl | None:
+        store_url = await self._get_store_url(object)
         if store_url is None:
             return None
         else:
@@ -59,7 +59,7 @@ class ModelRepository(BaseRepository[Model], UUIDRepositoryMixin[Model]):
         if full_path is None:
             return None
         else:
-            contents = await anext(get_file_contents(full_path.url))
+            contents = await anext(get_file_contents(full_path))
             return contents
 
     async def get_hash(self, object: M) -> str | None:

@@ -1,0 +1,3 @@
+
+class UnsupportedEnvironment(Exception):
+    pass

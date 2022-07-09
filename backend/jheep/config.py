@@ -1,3 +1,5 @@
+import os
+
 from enum import Enum
 from pathlib import Path
 from typing import Optional
@@ -15,15 +17,17 @@ from .db.types import (
     DatabaseType,
     create_database_connection_parameters,
 )
+from .exceptions import UnsupportedEnvironment
 
 
 class Environment(str, Enum):
     DEVELOPMENT = "development"
     STAGING = "staging"
     PRODUCTION = "production"
+    TEST = "test"
 
 
-class Settings(BaseSettings):
+class DefaultSettings(BaseSettings):
     environment: Environment = Environment.DEVELOPMENT
     host: str = "localhost"
     port: int = 8801
@@ -89,4 +93,15 @@ class Settings(BaseSettings):
         )
 
 
-settings = Settings()
+env = os.environ.get("ENVIRONMENT", Environment.DEVELOPMENT.value)
+match env:
+    case Environment.DEVELOPMENT.value:
+        settings = DefaultSettings()
+    case Environment.TEST.value:
+        settings = DefaultSettings(
+            database_host="localhost",
+            database_name="jheep_test",
+        )
+    case _:
+        settings = None
+        raise UnsupportedEnvironment(f"{env} is not a supported environment")

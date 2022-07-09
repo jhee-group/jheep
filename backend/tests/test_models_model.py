@@ -1,29 +1,44 @@
+from typing import Tuple
 import pytest
+
 from sqlmodel import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from jheep.models import ModelStore, Model
+from jheep.repositories.base import get_repository
+from jheep.repositories.model import (
+    ModelStoreRepository,
+    ModelRepository,
+)
 
 from tests.data import TestData
-from tests.types import GetSessionManager
 
 
 @pytest.mark.asyncio
-async def test_model_store(
-    test_data: TestData,
-):
-    store = test_data["modelstore"]["local"]
-    assert store.name == "local"
+async def test_model_store(test_env: Tuple[AsyncSession, TestData]):
+    session, data_mapping = test_env
+
+    store1 = data_mapping["modelstore"]["local"]
+    assert store1.name == "local"
+
+    modelstore_repo = get_repository(ModelStoreRepository, session)
+    statement = select(ModelStore).where(ModelStore.name == store1.name)
+    store2 = await modelstore_repo.get_one_or_none(statement)
+    assert store2 is not None
+    assert await modelstore_repo.validate(store2)
 
 
 @pytest.mark.asyncio
-async def test_fields(
-    test_data: TestData,
-    test_session_manager: GetSessionManager,
-):
-    model = test_data["model"]["basic-model"]
-    assert model.name == "basic-model"
-    assert model.path == "basic-model/modelfile"
+async def test_model(test_env: Tuple[AsyncSession, TestData]):
+    session, data_mapping = test_env
 
-    async with test_session_manager() as session:
-        contents = await model.get_contents(session)
+    model1 = data_mapping["model"]["basic-model"]
+    assert model1.name == "basic-model"
+    assert model1.path == "basic-model/modelfile"
+
+    model_repo = get_repository(ModelRepository, session)
+    statement = select(Model).where(Model.name == model1.name)
+    model2 = await model_repo.get_one_or_none(statement)
+    assert model2 is not None
+    contents = await model_repo.get_contents(model2)
     assert contents == b"1234567890"
