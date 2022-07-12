@@ -46,7 +46,7 @@ class DefaultSettings(BaseSettings):
     database_location: DirectoryPath = Path.cwd()
     database_pool_recycle_seconds: int = 600
 
-    redis_url: str = "redis://redis:6379"
+    dask_scheduler_url: str = "tcp://scheduler:8786"
 
     csrf_cookie_name: str = "jheep_csrftoken"
     csrf_cookie_secure: bool = True

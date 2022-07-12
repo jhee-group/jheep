@@ -1,0 +1,32 @@
+# base image
+FROM ghcr.io/jhee-group/jheep-cpu-base:latest
+
+ARG USERNAME=jheepuser
+ARG USERID=1000
+ARG GROUPID=0
+
+USER ${USERNAME}
+ENV HOME=/home/${USERNAME}
+
+# install nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+ENV NVM_DIR=${HOME}/.config/nvm
+
+RUN . ${NVM_DIR}/nvm.sh \
+ && nvm install --lts --latest-npm \
+ && nvm use default
+
+ARG NODE_VERSION="$(nvm current)"
+ENV NODE_PATH=${NVM_DIR}/${NODE_VERSION}/lib/node_modules
+ENV PATH=${NVM_DIR}/versions/node/${NODE_VERSION}/bin:${PATH}
+
+# install jupyterlab
+RUN pip install -U jupyterlab dask-labextension bokeh
+
+RUN mkdir -p ${HOME}/.jupyter/lab/user-settings
+RUN sudo chown -R ${USERID}:${GROUPID} ${HOME}/.jupyter
+COPY --chown=${USERID}:${GROUPID} .settings/jupyter_server_config.py ${HOME}/.jupyter/jupyter_server_config.py
+
+# entrypoint
+COPY .settings/supervisord.jupyterlab.conf /etc/supervisord.conf
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]

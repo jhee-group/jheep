@@ -2,5 +2,5 @@
 FROM ghcr.io/jhee-group/jheep-cpu-base:latest
 
 # entrypoint
-COPY .settings/supervisord.server.conf /etc/supervisord.conf
+COPY .settings/supervisord.scheduler.conf /etc/supervisord.conf
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]

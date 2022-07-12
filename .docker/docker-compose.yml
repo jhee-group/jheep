@@ -20,21 +20,18 @@ services:
     volumes:
       - jheep_db:/var/lib/postgresql/data:rw
 
-  redis:
-    image: redis:latest
-    expose:
-      - 6379
-    command: redis-server
-
   server:
     image: ${DOCKER_REGISTRY}/jheep-server:latest
-    build: 
+    build:
       context: ${JHEEP_PATH}/backend
       dockerfile: .docker/Dockerfile.server
       args:
         - GIT_REF=${GIT_REF}
-        - BACK_APP_DIR=${BACK_APP_DIR}
-        - SETTINGS_PATH=.settings
+        - USERNAME=${DOCKER_USER}
+        - USERID=${USERID}
+        - GROUPID=${GROUPID}
+        - APP_DIR=${BACK_APP_DIR}
+    user: ${USERID}:${GROUPID}
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
       - ${JHEEP_PATH}/examples:/examples:rw
@@ -54,21 +51,53 @@ services:
     working_dir: ${BACK_APP_DIR}
     depends_on:
       - db
-      - redis
       - memcached
 
-  worker:
-    image: ${DOCKER_REGISTRY}/jheep-worker:latest
+  scheduler:
+    image: ${DOCKER_REGISTRY}/jheep-scheduler:latest
     build:
       context: ${JHEEP_PATH}/backend
-      dockerfile: .docker/Dockerfile.worker
+      dockerfile: .docker/Dockerfile.scheduler
       args:
         - GIT_REF=${GIT_REF}
         - USERNAME=${DOCKER_USER}
         - USERID=${USERID}
         - GROUPID=${GROUPID}
-        - BACK_APP_DIR=${BACK_APP_DIR}
-        - SETTINGS_PATH=.settings
+        - APP_DIR=${BACK_APP_DIR}
+    user: ${USERID}:${GROUPID}
+    volumes:
+      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
+      - ${JHEEP_PATH}/examples:/examples:rw
+      - jheep_data:/examples/.data
+    expose:
+      - 8786
+    ports:
+      - 8787:8787
+    environment:
+      - JHEEP_PATH=${BACK_APP_DIR}
+      - JHEEP_EXAMPLES_PATH=/examples
+      - DATABASE_TYPE=POSTGRESQL
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=jheep_db
+      - ENVIRONMENT=development
+    working_dir: ${BACK_APP_DIR}
+    depends_on:
+      - server
+
+  cpu-worker:
+    image: ${DOCKER_REGISTRY}/jheep-cpu-worker:latest
+    build:
+      context: ${JHEEP_PATH}/backend
+      dockerfile: .docker/Dockerfile.cpu-worker
+      args:
+        - GIT_REF=${GIT_REF}
+        - USERNAME=${DOCKER_USER}
+        - USERID=${USERID}
+        - GROUPID=${GROUPID}
+        - APP_DIR=${BACK_APP_DIR}
     #deploy:
     #  resources:
     #    reservations:
@@ -77,7 +106,7 @@ services:
     #          device_ids: ['0', '1']
     #          capabilities: [gpu]
     #ipc: host
-    shm_size: 2048M
+    #shm_size: 2048M
     user: ${USERID}:${GROUPID}
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
@@ -86,8 +115,8 @@ services:
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
       - JHEEP_EXAMPLES_PATH=/examples
-      - NVIDIA_DRIVER_CAPABILITIES=all
-      - NVIDIA_VISIBLE_DEVICES=all
+      #- NVIDIA_DRIVER_CAPABILITIES=all
+      #- NVIDIA_VISIBLE_DEVICES=all
       - JUPYTER_PORT=8899
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
@@ -96,17 +125,93 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=jheep_db
       - ENVIRONMENT=development
-    ports:
-      - 8899:8899
+    expose:
+      - 8787
+      - 8788
     working_dir: ${BACK_APP_DIR}
     depends_on:
-      - db
-      - redis
-      - memcached
-    #sysctls:
-    #    - net.ipv4.tcp_keepalive_time=200
-    #    - net.ipv4.tcp_keepalive_intvl=200
-    #    - net.ipv4.tcp_keepalive_probes=5
+      - scheduler
+    sysctls:
+        - net.ipv4.tcp_keepalive_time=200
+        - net.ipv4.tcp_keepalive_intvl=200
+        - net.ipv4.tcp_keepalive_probes=5
+
+#  gpu-worker:
+#    image: ${DOCKER_REGISTRY}/jheep-cpu-worker:latest
+#    build:
+#      context: ${JHEEP_PATH}/backend
+#      dockerfile: .docker/Dockerfile.cpu-worker
+#      args:
+#        - GIT_REF=${GIT_REF}
+#        - USERNAME=${DOCKER_USER}
+#        - USERID=${USERID}
+#        - GROUPID=${GROUPID}
+#        - APP_DIR=${BACK_APP_DIR}
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              device_ids: ['0', '1']
+#              capabilities: [gpu]
+#    ipc: host
+#    shm_size: 2048M
+#    user: ${USERID}:${GROUPID}
+#    volumes:
+#      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
+#      - ${JHEEP_PATH}/examples:/examples:rw
+#      - jheep_data:/examples/.data
+#    environment:
+#      - JHEEP_PATH=${BACK_APP_DIR}
+#      - JHEEP_EXAMPLES_PATH=/examples
+#      - NVIDIA_DRIVER_CAPABILITIES=all
+#      - NVIDIA_VISIBLE_DEVICES=all
+#      - JUPYTER_PORT=8899
+#      - DATABASE_TYPE=POSTGRESQL
+#      - DATABASE_HOST=db
+#      - DATABASE_PORT=5432
+#      - DATABASE_USERNAME=postgres
+#      - DATABASE_PASSWORD=postgres
+#      - DATABASE_NAME=jheep_db
+#      - ENVIRONMENT=development
+#    ports:
+#      - 8899:8899
+#    working_dir: ${BACK_APP_DIR}
+#    depends_on:
+#      - db
+#      - redis
+#      - memcached
+#    sysctls:
+#        - net.ipv4.tcp_keepalive_time=200
+#        - net.ipv4.tcp_keepalive_intvl=200
+#        - net.ipv4.tcp_keepalive_probes=5
+
+  jupyterlab:
+    image: ${DOCKER_REGISTRY}/jheep-jupyterlab:latest
+    build:
+      context: ${JHEEP_PATH}/backend
+      dockerfile: .docker/Dockerfile.jupyterlab
+      args:
+        - GIT_REF=${GIT_REF}
+        - USERNAME=${DOCKER_USER}
+        - USERID=${USERID}
+        - GROUPID=${GROUPID}
+        - APP_DIR=${BACK_APP_DIR}
+    user: ${USERID}:${GROUPID}
+    volumes:
+      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
+      - ${JHEEP_PATH}/examples:/examples:rw
+      - jheep_data:/examples/.data
+    ports:
+      - 8899:8899
+    environment:
+      - JHEEP_PATH=${BACK_APP_DIR}
+      - JHEEP_EXAMPLES_PATH=/examples
+      - JUPYTER_PORT=8899
+    working_dir: ${BACK_APP_DIR}
+    depends_on:
+      - server
+      - scheduler
 
 volumes:
   jheep_db:

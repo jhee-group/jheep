@@ -1,0 +1,87 @@
+# base image
+FROM debian:11-slim
+
+ARG USERNAME=jheepuser
+ARG USERID=1000
+ARG GROUPID=0
+ARG SETTINGS_PATH=.settings
+ARG PYTHON_VERSION=3.10.5
+ARG GIT_REF=12345678
+
+# set environment variables
+ENV DEBIAN_FRONTEND noninteractive
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# install system dependencies
+RUN apt-get -y update \
+ && apt-get -y install apt-utils \
+ && apt-get -y dist-upgrade \
+ && apt-get -y install \
+    sudo netcat build-essential git supervisor wget curl llvm \
+    libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+    libsqlite3-dev libncurses5-dev libncursesw5-dev \
+    xz-utils tk-dev libffi-dev liblzma-dev libpq-dev \
+ && apt-get -y autoclean \
+ && apt-get -y autoremove --purge \
+ && rm -rf /var/lib/apt/lists/*
+
+# docker user setting
+RUN groupadd -f -g ${GROUPID} ${USERNAME} \
+ && useradd -u ${USERID} -g ${GROUPID} -G sudo -m -s /bin/bash ${USERNAME} \
+ && echo "${USERNAME} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${USERNAME} \
+ && echo "Customized the sudoers file for passwordless access to the ${USERNAME} user!" \
+ && su - ${USERNAME} -c id
+
+# set home directory
+USER ${USERNAME}
+ENV HOME=/home/${USERNAME}
+ENV XDG_DATA_HOME=${HOME}/.local/share
+ENV XDG_CONFIG_HOME=${HOME}/.config
+WORKDIR ${HOME}
+
+RUN mkdir -p ${HOME}/.local/bin ${HOME}/.local/lib ${HOME}/.local/share ${HOME}/.config \
+ && sudo chown -R ${USERID}:${GROUPID} ${HOME}/.local ${HOME}/.config
+
+# pyenv setting
+RUN curl https://pyenv.run | bash \
+ && sed -i '/^#umask.*/a \n\n# pyenv\nexport PYENV_ROOT="$HOME/.pyenv"\nexport PATH="$PYENV_ROOT/bin:$PATH"\neval "$(pyenv init --path)"' ${HOME}/.profile \
+ && printf '\n# pyenv settings\nexport PYTHON_CONFIGURE_OPTS="--enable-shared"\neval "$(pyenv init -)"\n\n# set vi\nset -o vi' >> ${HOME}/.bashrc
+
+ENV PYENV_ROOT=${HOME}/.pyenv
+ENV PYENV_VERION=${PYTHON_VERSION}
+ENV PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${HOME}/.local/bin:${PATH}
+#ENV PYTHONPATH=${HOME}/.local/lib/python3.10/site-packages:/usr/lib/python3/dist-packages:${PYTHONPATH}
+
+RUN pyenv update \
+ && pyenv install ${PYTHON_VERSION} \
+ && pyenv global ${PYTHON_VERSION}
+
+RUN mkdir -p ${HOME}/.pip \
+ && sudo chown -R ${USERID}:${GROUPID} ${HOME}/.pip
+COPY --chown=${USERID}:${GROUPID} ${SETTINGS_PATH}/pip.conf ${HOME}/.pip/pip.conf
+RUN pip install --upgrade pip
+
+# install pypi
+RUN pip install --upgrade ipython
+
+RUN mkdir -p ${HOME}/.ipython/profile_default \
+ && sudo chown -R ${USERID}:${GROUPID} ${HOME}/.ipython
+COPY --chown=${USERID}:${GROUPID} ${SETTINGS_PATH}/ipython_config.py ${HOME}/.ipython/profile_default/ipython_config.py
+
+# set working directory
+ENV GIT_REF=${GIT_REF}
+RUN echo "GIT_REF=${GIT_REF}"
+
+ENV APP_DIR /backend
+WORKDIR ${APP_DIR}
+
+#COPY ./requirements.txt ${APP_DIR}
+#RUN pip install -U -r ${APP_DIR}/requirements.txt
+COPY --chown=${USERID}:${GROUPID} . ${APP_DIR}
+RUN pip install -U -e .
+
+# entrypoint
+#ENTRYPOINT jhee run
+#COPY ${SETTINGS_PATH}/supervisord.server.conf /etc/supervisord.conf
+#CMD ["supervisord", "-c", "/etc/supervisord.conf"]

@@ -1,0 +1,6 @@
+# base image
+FROM ghcr.io/jhee-group/jheep-gpu-base:latest
+
+# entrypoint
+COPY .settings/supervisord.worker.conf /etc/supervisord.conf
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
