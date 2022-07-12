@@ -7,7 +7,7 @@ from sqlmodel import SQLModel
 from alembic import context
 
 from jheep import models
-#from jheep.settings import settings
+#from jheep.config import settings
 
 
 # this is the Alembic Config object, which provides

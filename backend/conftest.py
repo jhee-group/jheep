@@ -118,7 +118,6 @@ async def test_env(
             for obj in model.values():
                 session.add(obj)
         await session.commit()
-        print(data_mapping)
         yield session, data_mapping
 
 
