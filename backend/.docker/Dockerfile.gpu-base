@@ -83,5 +83,5 @@ RUN pip install -U -e .
 
 # entrypoint
 #ENTRYPOINT jheep run
-#COPY ${SETTINGS_PATH}/supervisord.worker.conf /etc/supervisord.conf
+#COPY ${SETTINGS_PATH}/supervisord_worker.conf /etc/supervisord.conf
 #CMD ["supervisord", "-c", "/etc/supervisord.conf"]

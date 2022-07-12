@@ -83,5 +83,5 @@ RUN pip install -U -e .
 
 # entrypoint
 #ENTRYPOINT jhee run
-#COPY ${SETTINGS_PATH}/supervisord.server.conf /etc/supervisord.conf
+#COPY ${SETTINGS_PATH}/supervisord_server.conf /etc/supervisord.conf
 #CMD ["supervisord", "-c", "/etc/supervisord.conf"]

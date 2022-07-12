@@ -27,6 +27,10 @@ RUN mkdir -p ${HOME}/.jupyter/lab/user-settings
 RUN sudo chown -R ${USERID}:${GROUPID} ${HOME}/.jupyter
 COPY --chown=${USERID}:${GROUPID} .settings/jupyter_server_config.py ${HOME}/.jupyter/jupyter_server_config.py
 
+RUN mkdir -p ${HOME}/.config/dask
+RUN sudo chown -R ${USERID}:${GROUPID} ${HOME}/.config/dask
+COPY --chown=${USERID}:${GROUPID} .settings/dask_distributed.yaml ${HOME}/.config/dask/distributed.yaml
+
 # entrypoint
-COPY .settings/supervisord.jupyterlab.conf /etc/supervisord.conf
+COPY .settings/supervisord_jupyterlab.conf /etc/supervisord.conf
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]
