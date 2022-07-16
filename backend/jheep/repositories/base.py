@@ -64,6 +64,7 @@ class UUIDRepositoryProtocol(BaseRepositoryProtocol, Protocol[M_UUID]):
 
 
 class BaseRepository(BaseRepositoryProtocol, Generic[M]):
+
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
@@ -164,6 +165,7 @@ class BaseRepository(BaseRepositoryProtocol, Generic[M]):
 
 
 class UUIDRepositoryMixin(Generic[M_UUID]):
+
     async def get_by_id(
         self: UUIDRepositoryProtocol[M_UUID],
         id: UUID4,

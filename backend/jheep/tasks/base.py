@@ -1,27 +1,61 @@
+import logging
+import asyncio
+from typing import AsyncContextManager, AsyncGenerator, Callable, ClassVar
 from urllib.parse import urlparse
 
-import dask
-from dask.distributed import Client
+from sqlalchemy.ext.asyncio import AsyncSession
+import dramatiq
+from dramatiq.brokers.redis import RedisBroker
 
+from ..db.main import get_async_session_manager
 from ..config import settings
 
 
-client = Client(settings.dask_scheduler_url)
+logger = logging.getLogger(__name__)
+
+params = urlparse(settings.redis_url)
+broker = RedisBroker(
+    host=params.hostname,
+    port=params.port,
+    username=params.username,
+    password=params.password,
+    ssl=params.scheme == "rediss",
+    ssl_cert_reqs=None,
+)
+dramatiq.set_broker(broker)
 
 
-def _update_dashboard_config(dashboard_port=8787):
-    dslink = dask.config.get('distributed.dashboard.link')
-    url = urlparse(dslink)
-    if url.hostname != "scheduler":
-        return
-    else:
-        # replace scheduler docker container name to its ip address
-        # to be used not only inside docker but also from host browser
-        scheduler_addr = client.scheduler_info()['address']
-        url = urlparse(scheduler_addr)
-        dask.config.set({
-            'distributed.dashboard.link': f'http://{url.hostname}:{dashboard_port}'
-        })
+SendTask = Callable[..., None]
 
-# for docker-compose env
-_update_dashboard_config()
+
+def send_task(task: dramatiq.Actor, *args, **kwargs):
+    logger.debug("Send task", task=task.actor_name)
+    task.send(*args, **kwargs)
+
+
+class TaskError(Exception):
+    pass
+
+
+class TaskBase:
+    __name__: ClassVar[str]
+
+    def __init__(
+        self,
+        get_session: Callable[..., AsyncContextManager[AsyncGenerator[AsyncSession, None]]] = get_async_session_manager,
+    ) -> None:
+        self.get_session = get_session
+
+    def __call__(self, *args, **kwargs):
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            # The default policy doesn't create a loop by default for threads (only for main process)
+            # Thus, we create one here and set it for future works.
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        logger.debug("start task", task=self.__name__)
+        result = loop.run_until_complete(self.run(*args, **kwargs))
+        logger.debug("done task", task=self.__name__)
+        return result

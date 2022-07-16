@@ -1,6 +1,0 @@
-# base image
-FROM ghcr.io/jhee-group/jheep-cpu-base:latest
-
-# entrypoint
-COPY .settings/supervisord_scheduler.conf /etc/supervisord.conf
-CMD ["supervisord", "-c", "/etc/supervisord.conf"]

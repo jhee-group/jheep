@@ -121,7 +121,7 @@ fn_server_cmd()
             ;;
         "build")
             fn_check_gitrepo
-            fn_pull "${DOCKER_REGISTRY}/jheep-cpu-base:latest"
+            fn_pull "${DOCKER_REGISTRY}/jheep-base"
             ${docker_cmd} build ${container}
             ;;
         "push")
@@ -132,37 +132,6 @@ fn_server_cmd()
             ;;
         "jheep")
             ${docker_cmd} exec ${container} jheep ${@:2}
-            ;;
-        "bash")
-            ${docker_cmd} exec ${container} bash ${@:2}
-            ;;
-        *)
-            fn_help
-            ;;
-    esac
-}
-
-fn_scheduler_cmd()
-{
-    [[ $# -lt 1 ]] && fn_help && exit 1
-
-    container="scheduler"
-    img="${DOCKER_REGISTRY}/jheep-scheduler"
-
-    case $1 in
-        "logs")
-            ${docker_cmd} logs ${container}
-            ;;
-        "build")
-            fn_check_gitrepo
-            fn_pull "${DOCKER_REGISTRY}/jheep-cpu-base:latest"
-            ${docker_cmd} build ${container}
-            ;;
-        "push")
-            fn_push ${img}
-            ;;
-        "pull")
-            fn_pull ${img}
             ;;
         "bash")
             ${docker_cmd} exec ${container} bash ${@:2}
@@ -175,19 +144,18 @@ fn_scheduler_cmd()
 
 fn_worker_cmd()
 {
-    [[ $# -lt 2 ]] && fn_help && exit 1
+    [[ $# -lt 1 ]] && fn_help && exit 1
 
-    arch=$1
-    container="${arch}-worker"
-    img="${DOCKER_REGISTRY}/jheep-${arch}-worker"
+    container="worker"
+    img="${DOCKER_REGISTRY}/jheep-worker"
 
-    case $2 in
+    case $1 in
         "logs")
             ${docker_cmd} logs ${container}
             ;;
         "build")
             fn_check_gitrepo
-            fn_pull "${DOCKER_REGISTRY}/jheep-${arch}-base:latest"
+            fn_pull "${DOCKER_REGISTRY}/jheep-base"
             ${docker_cmd} build ${container}
             ;;
         "push")
@@ -197,41 +165,10 @@ fn_worker_cmd()
             fn_pull ${img}
             ;;
         "jheep")
-            ${docker_cmd} exec ${container} jheep ${@:2}
+            ${docker_cmd} exec ${container} jheep ${@:3}
             ;;
         "bash")
-            ${docker_cmd} exec ${container} bash ${@:2}
-            ;;
-        *)
-            fn_help
-            ;;
-    esac
-}
-
-fn_jupyterlab_cmd()
-{
-    [[ $# -lt 1 ]] && fn_help && exit 1
-
-    container="jupyterlab"
-    img="${DOCKER_REGISTRY}/jheep-jupyterlab"
-
-    case $1 in
-        "logs")
-            ${docker_cmd} logs ${container}
-            ;;
-        "build")
-            fn_check_gitrepo
-            fn_pull "${DOCKER_REGISTRY}/jheep-cpu-base:latest"
-            ${docker_cmd} build ${container}
-            ;;
-        "push")
-            fn_push ${img}
-            ;;
-        "pull")
-            fn_pull ${img}
-            ;;
-        "bash")
-            ${docker_cmd} exec ${container} bash ${@:2}
+            ${docker_cmd} exec ${container} bash ${@:3}
             ;;
         *)
             fn_help
@@ -241,14 +178,12 @@ fn_jupyterlab_cmd()
 
 fn_base_cmd()
 {
-    [[ $# -lt 2 ]] && fn_help && exit 1
+    [[ $# -lt 1 ]] && fn_help && exit 1
 
-    arch=$1
-    settings_path=".settings"
-    docker_file="${JHEEP_PATH}/backend/.docker/Dockerfile.${arch}-base"
-    img="${DOCKER_REGISTRY}/jheep-${arch}-base"
+    docker_file="${JHEEP_PATH}/backend/.docker/Dockerfile.base"
+    img="${DOCKER_REGISTRY}/jheep-base"
 
-    case $2 in
+    case $1 in
         "build")
             fn_check_gitrepo
             docker build -f ${docker_file} -t "${img}:${GIT_REF}" \
@@ -256,7 +191,6 @@ fn_base_cmd()
                 --build-arg "USERNAME=${DOCKER_USER}" \
                 --build-arg "USERID=${USERID}" \
                 --build-arg "GROUPID=${GROUPID}" \
-                --build-arg "SETTINGS_PATH=${settings_path}" \
                 ${JHEEP_PATH}/backend
             docker tag "${img}:${GIT_REF}" "${img}:latest"
             ;;
@@ -289,24 +223,15 @@ case $1 in
         ;;
     "build")
         fn_server_cmd build
-        fn_scheduler_cmd build
-        fn_worker_cmd cpu build
-        #fn_worker_cmd gpu build
-        fn_jupyterlab_cmd build
+        fn_worker_cmd build
         ;;
     "push")
         fn_server_cmd push
-        fn_scheduler_cmd push
-        fn_worker_cmd cpu push
-        #fn_worker_cmd gpu push
-        fn_jupyterlab_cmd push
+        fn_worker_cmd push
         ;;
     "pull")
         fn_server_cmd pull
-        fn_scheduler_cmd pull
-        fn_worker_cmd cpu pull
-        #fn_worker_cmd gpu pull
-        fn_jupyterlab_cmd pull
+        fn_worker_cmd pull
         ;;
     "createdb")
         fn_db_cmd createdb
@@ -322,8 +247,7 @@ case $1 in
         ;;
     # base image cmd
     "base")
-        fn_base_cmd cpu ${@:2}
-        fn_base_cmd gpu ${@:2}
+        fn_base_cmd ${@:2}
         ;;
     # container based cmd
     "db")
@@ -332,14 +256,8 @@ case $1 in
     "server")
         fn_server_cmd ${@:2}
         ;;
-    "scheduler")
-        fn_scheduler_cmd ${@:2}
-        ;;
     "worker")
         fn_worker_cmd ${@:2}
-        ;;
-    "jupyterlab")
-        fn_jupyterlab_cmd ${@:2}
         ;;
     *)
         fn_help

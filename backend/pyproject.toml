@@ -40,7 +40,7 @@ dependencies = [
   "dask[complete]",
   "dask-ml[complete]",
   "distributed",
-  #"dramatiq[redis]",
+  "dramatiq[redis]",
   "fastapi",
   "fastapi-users[sqlalchemy]",
   "fastapi-versioning",

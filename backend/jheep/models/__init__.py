@@ -1,8 +1,7 @@
 from sqlmodel.sql.expression import Select, SelectOfScalar
-from sqlmodel import SQLModel
 
 from .generics import M_UUID, M
-from .models import (
+from .model import (
     ModelStore, ModelStoreCreate,
     Model, ModelCreate,
 )
@@ -16,6 +15,7 @@ Select.inherit_cache = True  # type: ignore
 __all__ = [
     "M",
     "M_UUID",
+    "Dataset",
     "ModelStore",
     "ModelStoreCreate",
     "Model",

@@ -1,6 +1,7 @@
-from .base import client
+from .base import SendTask, send_task
 
 
 __all__ = [
-    client
+    "send_task",
+    "SendTask",
 ]

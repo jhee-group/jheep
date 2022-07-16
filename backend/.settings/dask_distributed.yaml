@@ -1,3 +1,7 @@
 distributed:
   dashboard:
-    link: "http://scheduler:8787/status"
+    link: "http://localhost:8787/status"
+#  admin:
+#    tick:
+#      interval: 20ms
+#      limit: 3h

@@ -3,6 +3,7 @@ from argparse import Namespace
 import typer
 import uvicorn
 import alembic
+from dramatiq import cli as dcli
 
 from jheep.paths import ALEMBIC_CONFIG_FILE
 from jheep.config import settings, Environment
@@ -60,20 +61,6 @@ def run_server(
         reload=reload, log_level=log_level, debug=debug
     )
 
-"""
-@app.command(
-    "scheduler",
-    context_settings={
-        "allow_extra_args": True,
-        "ignore_unknown_options": True
-    },
-    add_help_option=False,
-)
-def run_scheduler(ctx: typer.Context):
-    parser = dcli.make_argument_parser()
-    args = parser.parse_args(ctx.args + ["jheep.worker"])
-    dcli.main(args)
-
 
 @app.command(
     "worker",
@@ -87,7 +74,7 @@ def run_worker(ctx: typer.Context):
     parser = dcli.make_argument_parser()
     args = parser.parse_args(ctx.args + ["jheep.worker"])
     dcli.main(args)
-"""
+
 
 if __name__ == "__main__":
     app()
