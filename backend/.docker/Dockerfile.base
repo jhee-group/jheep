@@ -27,12 +27,11 @@ WORKDIR ${HOME}
 
 RUN mkdir -p ${HOME}/.local/bin ${HOME}/.local/lib ${HOME}/.local/share ${HOME}/.config
 
+# install pypi
+RUN pip install --upgrade pip ipython
+
 RUN mkdir -p ${HOME}/.pip
 COPY .settings/pip_server.conf ${HOME}/.pip/pip.conf
-RUN pip install --upgrade pip
-
-# install pypi
-RUN pip install --upgrade ipython
 
 RUN mkdir -p ${HOME}/.ipython/profile_default
 COPY .settings/ipython_config.py ${HOME}/.ipython/profile_default/ipython_config.py
@@ -47,7 +46,7 @@ WORKDIR ${APP_DIR}
 #COPY ./requirements.txt ${APP_DIR}
 #RUN pip install -U -r ${APP_DIR}/requirements.txt
 COPY . ${APP_DIR}
-RUN pip install -U -e .
+RUN pip install --upgrade --editable .
 
 # entrypoint
 #ENTRYPOINT jhee run

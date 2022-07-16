@@ -1,5 +1,5 @@
 # base image
-FROM ghcr.io/jhee-group/jheep-cpu-base:latest
+FROM ghcr.io/jhee-group/jheep-base:latest
 
 # entrypoint
 COPY .settings/supervisord_server.conf /etc/supervisord.conf

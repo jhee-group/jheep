@@ -72,6 +72,8 @@ COPY --chown=${USERID}:${GROUPID} .settings/dask_distributed.yaml ${HOME}/.confi
 RUN sudo chown -R ${USERID}:${GROUPID} ${APP_DIR} 
 WORKDIR ${APP_DIR}
 
+RUN pip install --upgrade --user --editable .[worker]
+
 # entrypoint
 COPY .settings/supervisord_worker.conf /etc/supervisord.conf
 CMD ["supervisord", "-c", "/etc/supervisord.conf"]

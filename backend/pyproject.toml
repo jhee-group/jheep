@@ -37,16 +37,12 @@ dependencies = [
   "argon2_cffi",
   "asyncpg",
   "Babel",
-  "dask[complete]",
-  "dask-ml[complete]",
-  "distributed",
   "dramatiq[redis]",
   "fastapi",
   "fastapi-users[sqlalchemy]",
   "fastapi-versioning",
   "fs",
   "furl",
-  "ipython",
   "Jinja2",
   "jwcrypto",
   "loguru",
@@ -62,6 +58,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+worker = [
+  "dask[complete]",
+  "distributed",
+  "dask-ml[complete]",
+]
 dev = [
   "asgi-lifespan",
   "black",
@@ -70,6 +71,7 @@ dev = [
   "flit",
   "gevent",
   "httpx",
+  "ipython",
   "pytest",
   "pytest-cov",
   "pytest-asyncio",
