@@ -1,4 +1,5 @@
 import os
+import sys
 import io
 import logging
 from pathlib import Path
@@ -6,13 +7,13 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
-from rdkit import Chem, rdBase
-from rdkit.Chem import AllChem
+from rdkit import Chem, rdBase, DataStructs
+from rdkit.Chem import AllChem, rdFingerprintGenerator
 import dask.dataframe as dd
 from dask.distributed import Client, LocalCluster
 from distributed.protocol import dask_serialize, dask_deserialize
 
-from .utils import download, extract_zip
+from utils import download, extract_zip
 
 
 rdBase.DisableLog('rdApp.*')
@@ -174,18 +175,48 @@ def make_fingerprint_feature(
 ) -> np.array:
     if bitcount % 8 != 0:
         raise Exception("fingerprints length must be multiples of 8")
-    mol = Chem.MolFromSmiles(smiles, sanitize=True)
+    mol = Chem.AddHs(Chem.MolFromSmiles(smiles, sanitize=True))
     fp = AllChem.GetMorganFingerprintAsBitVect(mol, useChirality=True, radius=radius, nBits=bitcount)
-    return fp.ToBase64()
-    #return np.array(fp, dtype=np.uint8).tobytes()
+    #return fp.ToBase64()
+    arr = np.asarray(fp)
+    return arr
+
+
+def make_fingerprint_feature2(
+    smiles: str,
+    radius: int = 2,
+    bitcount: int = 4096,
+) -> np.array:
+    if bitcount % 8 != 0:
+        raise Exception("fingerprints length must be multiples of 8")
+    mol = Chem.AddHs(Chem.MolFromSmiles(smiles, sanitize=True))
+    #rdFingerprintGenerator.GetRDKitFPGenerator,
+    #rdFingerprintGenerator.GetMorganGenerator,
+    #rdFingerprintGenerator.GetAtomPairGenerator,
+    #rdFingerprintGenerator.GetTopologicalTorsionGenerator):
+    fn = rdFingerprintGenerator.GetMorganGenerator
+    gen = fn(includeChirality=True, radius=radius, fpSize=bitcount)
+    #fp = gen.GetFingerprint(mol)
+    #oarr = np.zeros((fp.GetNumBits(), ), 'u1')
+    #DataStructs.ConvertToNumpyArray(fp, oarr)
+    arr = gen.GetFingerprintAsNumPy(mol)
+    #np.testing.assert_array_equal(oarr, arr)
+
+    #cfp = gen.GetCountFingerprint(mol)
+    #oarr = np.zeros((cfp.GetLength(), ), 'u4')
+    #DataStructs.ConvertToNumpyArray(cfp, oarr)
+    #arr = gen.GetCountFingerprintAsNumPy(mol)
+    #np.testing.assert_array_equal(oarr, arr)
+    return arr
 
 
 if __name__ == "__main__":
     from timeit import default_timer as timer
 
-    cluster = LocalCluster()
-    cluster.adapt(minimum=1, maximum=8)
-    client = Client(cluster)
+    #cluster = LocalCluster(host='127.0.0.1', scheduler_port=8786, dashboard_address=':8787')
+    #cluster.adapt(minimum=1, maximum=8)
+    #client = Client(cluster)
+    client = Client()
 
     file_path: Path | str = data_root.joinpath("data")
     manifest_file: str = "manifest.csv"
@@ -198,13 +229,13 @@ if __name__ == "__main__":
         tqdm.pandas()
         df = pd.read_csv(manifest_path)
         results = df['smiles'].apply(make_fingerprint_feature)
-        print(results)
+        return results
 
     def dask_worker1():
         ddf = dd.read_csv(manifest_path)
         #with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         #    print(df.head(100))
-        futures = client.map(make_fingerprint_feature, ddf.smiles)
+        futures = client.map(make_fingerprint_feature2, ddf.smiles)
         results = client.gather(futures)
         return results
 
@@ -216,7 +247,7 @@ if __name__ == "__main__":
             return df.smiles.apply(make_fingerprint_feature)
 
         results = ddf.map_partitions(mff_wrapper, meta=pd.Series(dtype=str)).compute()
-        print(results)
+        return results
 
     def dask_worker3():
         ddf = dd.read_csv(manifest_path)
@@ -228,18 +259,32 @@ if __name__ == "__main__":
 
         futures = client.map(mff_wrapper, ddf.to_delayed())
         results = pd.concat(client.gather(futures))
-        print(results)
+        return results
 
     def dask_worker4():
         ddf = dd.read_csv(manifest_path)
         ddf = ddf.repartition(npartitions=8)
         futures = ddf.smiles.apply(make_fingerprint_feature, meta=pd.Series(dtype=str))
         results = futures.compute()
-        print(results)
+        return results
+
+    def dask_worker5():
+        ddf = dd.read_csv(manifest_path)
+        ddf = ddf.repartition(npartitions=8)
+
+        def mff_wrapper(dfd):
+            df = dfd.compute()
+            return df['smiles'].apply(make_fingerprint_feature2)
+
+        futures = client.map(mff_wrapper, ddf.to_delayed())
+        results = pd.concat(client.gather(futures))
+        return results
 
 
     t = timer()
     #results = pandas_worker()
-    results = dask_worker3()
+    results = dask_worker5()
+    np.set_printoptions(threshold=sys.maxsize)
+    print(results[130185])
     et = timer() - t
     print(f"elapsed time: {et:.3f} secs")

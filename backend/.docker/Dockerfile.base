@@ -26,6 +26,7 @@ ENV XDG_CONFIG_HOME=${HOME}/.config
 WORKDIR ${HOME}
 
 RUN mkdir -p ${HOME}/.local/bin ${HOME}/.local/lib ${HOME}/.local/share ${HOME}/.config
+RUN printf '\n#set vi\nset -o vi' >> ${HOME}/.bashrc
 
 # install pypi
 RUN pip install --upgrade pip ipython

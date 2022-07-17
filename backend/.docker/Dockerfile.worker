@@ -33,6 +33,7 @@ WORKDIR ${HOME}
 
 RUN mkdir -p ${HOME}/.local/bin ${HOME}/.local/lib ${HOME}/.local/share ${HOME}/.config \
  && sudo chown -R ${USERID}:${GROUPID} ${HOME}/.local ${HOME}/.config
+RUN printf '\n#set vi\nset -o vi' >> ${HOME}/.bashrc
  
 ENV XDG_DATA_HOME=${HOME}/.local/share
 ENV XDG_CONFIG_HOME=${HOME}/.config
