@@ -187,6 +187,9 @@ def make_fingerprint_feature2(
     radius: int = 2,
     bitcount: int = 4096,
 ) -> np.array:
+    """
+    https://github.com/rdkit/rdkit/pull/4523
+    """
     if bitcount % 8 != 0:
         raise Exception("fingerprints length must be multiples of 8")
     mol = Chem.AddHs(Chem.MolFromSmiles(smiles, sanitize=True))
