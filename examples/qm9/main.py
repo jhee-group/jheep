@@ -228,9 +228,7 @@ if __name__ == "__main__":
 
     manifest_path = file_path.joinpath(manifest_file)
 
-    def pandas_worker():
-        tqdm.pandas()
-        df = pd.read_csv(manifest_path)
+    def pandas_worker(df):
         results = df['smiles'].apply(make_fingerprint_feature)
         return results
 
@@ -271,9 +269,8 @@ if __name__ == "__main__":
         results = futures.compute()
         return results
 
-    def dask_worker5():
-        ddf = dd.read_csv(manifest_path)
-        ddf = ddf.repartition(npartitions=8)
+    def dask_worker5(ddf):
+        ddf = ddf.repartition(npartitions=1)
 
         def mff_wrapper(dfd):
             df = dfd.compute()
@@ -284,10 +281,12 @@ if __name__ == "__main__":
         return results
 
 
+    df = pd.read_csv(manifest_path)
+    #ddf = dd.read_csv(manifest_path)
     t = timer()
-    #results = pandas_worker()
-    results = dask_worker5()
-    np.set_printoptions(threshold=sys.maxsize)
-    print(results[130185])
+    results = pandas_worker(df)
+    #results = dask_worker5(ddf)
     et = timer() - t
+    #np.set_printoptions(threshold=sys.maxsize)
+    #print(results[130185])
     print(f"elapsed time: {et:.3f} secs")
