@@ -36,13 +36,13 @@ services:
         - APP_DIR=${BACK_APP_DIR}
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
-      - ${JHEEP_PATH}/examples:/examples:rw
-      - jheep_data:/examples/.data
+      - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
+      - jheep_data:${EXAMPLES_DIR}/.data
     ports:
       - 8801:8801
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
-      - JHEEP_EXAMPLES_PATH=/examples
+      - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
@@ -67,6 +67,7 @@ services:
         - USERID=${USERID}
         - GROUPID=${GROUPID}
         - APP_DIR=${BACK_APP_DIR}
+        - EX_DIR=${EXAMPLES_DIR}
     #deploy:
     #  resources:
     #    reservations:
@@ -79,14 +80,14 @@ services:
     user: ${USERID}:${GROUPID}
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
-      - ${JHEEP_PATH}/examples:/examples:rw
-      - jheep_data:/examples/.data
+      - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
+      - jheep_data:${EXAMPLES_DIR}/.data
     ports:
       - 8787:8787
       - 8899:8899
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
-      - JHEEP_EXAMPLES_PATH=/examples
+      - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
       #- NVIDIA_DRIVER_CAPABILITIES=all
       #- NVIDIA_VISIBLE_DEVICES=all
       - JUPYTER_PORT=8899
@@ -105,6 +106,7 @@ services:
 #        - USERID=${USERID}
 #        - GROUPID=${GROUPID}
 #        - APP_DIR=${BACK_APP_DIR}
+#        - EX_DIR=${EXAMPLES_DIR}
 #    deploy:
 #      resources:
 #        reservations:
@@ -117,13 +119,13 @@ services:
 #    user: ${USERID}:${GROUPID}
 #    volumes:
 #      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
-#      - ${JHEEP_PATH}/examples:/examples:rw
-#      - jheep_data:/examples/.data
+#      - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
+#      - jheep_data:${EXAMPLES_DIR}/.data
 #    ports:
 #      - 8899:8899
 #    environment:
 #      - JHEEP_PATH=${BACK_APP_DIR}
-#      - JHEEP_EXAMPLES_PATH=/examples
+#      - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
 #      #- NVIDIA_DRIVER_CAPABILITIES=all
 #      #- NVIDIA_VISIBLE_DEVICES=all
 #      - JUPYTER_PORT=8899

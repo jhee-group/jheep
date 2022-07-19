@@ -10,6 +10,7 @@ export IMG_TAG="${GIT_REF}"
 
 export BACK_APP_DIR="/backend"
 export FRONT_APP_DIR="/frontend"
+export EXAMPLES_DIR="/examples"
 
 docker_file="${JHEEP_PATH}/.docker/docker-compose.yml"
 project_name="jheep-dev"
