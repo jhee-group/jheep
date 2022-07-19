@@ -1,5 +1,7 @@
+ARG DOCKER_REGISTRY="ghcr.io/jhee-group"
+
 # base image
-FROM ghcr.io/jhee-group/jheep-base:latest
+FROM ${DOCKER_REGISTRY}/jheep-base:latest
 
 ARG USERNAME=jheepuser
 ARG USERID=1000
@@ -78,7 +80,7 @@ WORKDIR ${APP_DIR}
 RUN pip install --upgrade --user --editable .[worker]
 
 # prepare example dir
-RUN mkdir -p ${EX_DIR}/.data \
+RUN sudo mkdir -p ${EX_DIR}/.data \
  && sudo chown -R ${USERID}:${GROUPID} ${EX_DIR} 
 
 # entrypoint

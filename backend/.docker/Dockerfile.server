@@ -1,5 +1,7 @@
+ARG DOCKER_REGISTRY="ghcr.io/jhee-group"
+
 # base image
-FROM ghcr.io/jhee-group/jheep-base:latest
+FROM ${DOCKER_REGISTRY}/jheep-base:latest
 
 # entrypoint
 COPY .settings/supervisord_server.conf /etc/supervisord.conf
