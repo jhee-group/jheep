@@ -121,7 +121,7 @@ fn_server_cmd()
             ;;
         "build")
             fn_check_gitrepo
-            fn_pull "${DOCKER_REGISTRY}/jheep-base"
+            #fn_pull "${DOCKER_REGISTRY}/jheep-base"
             ${docker_cmd} build ${container}
             ;;
         "push")
@@ -155,7 +155,7 @@ fn_worker_cmd()
             ;;
         "build")
             fn_check_gitrepo
-            fn_pull "${DOCKER_REGISTRY}/jheep-base"
+            #fn_pull "${DOCKER_REGISTRY}/jheep-base"
             ${docker_cmd} build ${container}
             ;;
         "push")
