@@ -154,6 +154,7 @@ def make_dataset(
     df.to_csv(manifest_path, index=False)
 
 
+"""
 @dask_serialize.register(np.ndarray)
 def _serialize_ndarray(arr: np.ndarray) -> bytes:
     if isinstance(arr, np.ndarray):
@@ -166,7 +167,7 @@ def _serialize_ndarray(arr: np.ndarray) -> bytes:
 @dask_deserialize.register(np.ndarray)
 def _deserialize_ndarray(val: bytes) -> np.ndarray:
     return np.load(io.BytesIO(val)) if isinstance(val, bytes) else val
-
+"""
 
 def make_fingerprint_feature(
     smiles: str,
