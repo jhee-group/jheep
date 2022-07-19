@@ -9,10 +9,8 @@ services:
 
   db:
     image: postgres:latest
-    #expose:
-    #  - 5432
-    ports:
-      - 5432:5432
+    expose:
+      - 5432
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
@@ -68,15 +66,6 @@ services:
         - GROUPID=${GROUPID}
         - APP_DIR=${BACK_APP_DIR}
         - EX_DIR=${EXAMPLES_DIR}
-    #deploy:
-    #  resources:
-    #    reservations:
-    #      devices:
-    #        - driver: nvidia
-    #          device_ids: ['0', '1']
-    #          capabilities: [gpu]
-    #ipc: host
-    #shm_size: 2048M
     user: ${USERID}:${GROUPID}
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
@@ -88,8 +77,6 @@ services:
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
       - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
-      #- NVIDIA_DRIVER_CAPABILITIES=all
-      #- NVIDIA_VISIBLE_DEVICES=all
       - JUPYTER_PORT=8899
     working_dir: ${BACK_APP_DIR}
     depends_on:
