@@ -5,6 +5,7 @@ ARG USERNAME=jheepuser
 ARG USERID=1000
 ARG GROUPID=0
 ARG APP_DIR=/backend
+ARG EX_DIR=/example
 
 # install system dependencies
 RUN apt-get -y update \
@@ -73,7 +74,12 @@ COPY --chown=${USERID}:${GROUPID} .settings/dask_distributed.yaml ${HOME}/.confi
 RUN sudo chown -R ${USERID}:${GROUPID} ${APP_DIR} 
 WORKDIR ${APP_DIR}
 
+# re-install jheep with user switch
 RUN pip install --upgrade --user --editable .[worker]
+
+# prepare example dir
+RUN mkdir -p ${EX_DIR}/.data \
+ && sudo chown -R ${USERID}:${GROUPID} ${EX_DIR} 
 
 # entrypoint
 COPY .settings/supervisord_worker.conf /etc/supervisord.conf
