@@ -9,6 +9,7 @@ from tqdm.auto import tqdm
 
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def extract_zip(path, folder):

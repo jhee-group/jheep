@@ -62,6 +62,10 @@ worker = [
   "dask[complete]",
   "distributed",
   "dask-ml[complete]",
+  "h5py",
+  "numpy",
+  "pandas",
+  "tables",
 ]
 dev = [
   "asgi-lifespan",

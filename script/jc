@@ -131,14 +131,14 @@ fn_server_cmd()
         "pull")
             fn_pull ${img}
             ;;
-        "jheep")
-            ${docker_cmd} exec ${container} jheep ${@:2}
-            ;;
-        "bash")
-            ${docker_cmd} exec ${container} bash ${@:2}
-            ;;
+        #"jheep")
+        #    ${docker_cmd} exec ${container} jheep ${@:2}
+        #    ;;
+        #"bash")
+        #    ${docker_cmd} exec ${container} bash ${@:2}
+        #    ;;
         *)
-            fn_help
+            ${docker_cmd} exec ${container} ${@:1}
             ;;
     esac
 }
@@ -165,14 +165,14 @@ fn_worker_cmd()
         "pull")
             fn_pull ${img}
             ;;
-        "jheep")
-            ${docker_cmd} exec ${container} jheep ${@:3}
-            ;;
-        "bash")
-            ${docker_cmd} exec ${container} bash ${@:3}
-            ;;
+        #"jheep")
+        #    ${docker_cmd} exec ${container} jheep ${@:2}
+        #    ;;
+        #"bash")
+        #    ${docker_cmd} exec ${container} bash ${@:2}
+        #    ;;
         *)
-            fn_help
+            ${docker_cmd} exec ${container} ${@:1}
             ;;
     esac
 }

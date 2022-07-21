@@ -13,11 +13,12 @@ ARG EX_DIR=/examples
 RUN apt-get -y update \
  && apt-get -y install apt-utils \
  && apt-get -y dist-upgrade \
- && apt-get -y install \
-    sudo build-essential git wget curl llvm \
-    libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
-    libsqlite3-dev libncurses5-dev libncursesw5-dev \
-    xz-utils tk-dev libffi-dev liblzma-dev \
+ && apt-get -y install sudo curl \
+# && apt-get -y install \
+#    sudo build-essential git wget curl llvm \
+#    libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
+#    libsqlite3-dev libncurses5-dev libncursesw5-dev \
+#    xz-utils tk-dev libffi-dev liblzma-dev \
  && apt-get -y autoclean \
  && apt-get -y autoremove --purge \
  && rm -rf /var/lib/apt/lists/*
