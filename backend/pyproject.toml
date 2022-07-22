@@ -39,6 +39,7 @@ dependencies = [
   "Babel",
   "dramatiq[redis]",
   "fastapi",
+  "fastapi-cache2[redis]",
   "fastapi-users[sqlalchemy]",
   "fastapi-versioning",
   "fs",

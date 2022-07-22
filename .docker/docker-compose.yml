@@ -1,11 +1,11 @@
 version: '3'
 
 services:
-  memcached:
-    image: memcached:latest
+  redis:
+    image: redis:latest
     expose:
-      - 11211
-    command: ["-m", "8096"]
+      - 6379
+    command: redis-server
 
   db:
     image: postgres:latest
@@ -17,12 +17,6 @@ services:
       - POSTGRES_DB=jheep_db
     volumes:
       - jheep_db:/var/lib/postgresql/data:rw
-
-  redis:
-    image: redis:latest
-    expose:
-      - 6379
-    command: redis-server
 
   server:
     image: ${DOCKER_REGISTRY}/jheep-server:latest

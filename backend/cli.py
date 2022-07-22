@@ -1,4 +1,8 @@
+import sys
+import asyncio
 from argparse import Namespace
+from pathlib import Path
+import importlib
 
 import typer
 import uvicorn
@@ -74,6 +78,20 @@ def run_worker(ctx: typer.Context):
     parser = dcli.make_argument_parser()
     args = parser.parse_args(ctx.args + ["jheep.worker"])
     dcli.main(args)
+
+
+@app.command("run")
+def run_file(file: str = typer.Argument(...)):
+    file_path = Path(file).expanduser().resolve()
+    sys.path.append(str(file_path.parent))
+
+    module_name = file_path.stem
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    main_func = module.main
+
+    asyncio.run(main_func())
 
 
 if __name__ == "__main__":

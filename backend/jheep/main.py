@@ -1,4 +1,4 @@
-import logging
+import logging.config
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -10,6 +10,7 @@ from fastapi_versioning import VersionedFastAPI
 from .routers import router
 from .config import settings, Environment
 from .paths import STATIC_DIRECTORY
+from .cache import init_cache
 
 
 log_cfg = Path(__file__).parent / 'logging.conf'
@@ -48,3 +49,9 @@ app = VersionedFastAPI(
 
 # mount needs to be defined after VersionedFastAPI call
 app.mount("/static", StaticFiles(directory=STATIC_DIRECTORY), name="static")
+
+
+@app.on_event("startup")
+async def startup():
+    if settings.use_cache:
+        await init_cache()

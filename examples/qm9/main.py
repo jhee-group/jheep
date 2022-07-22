@@ -1,3 +1,4 @@
+import asyncio
 import logging
 from typing import Tuple
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-def prepare_data() -> Tuple[np.ndarray]:
+async def prepare_data() -> Tuple[np.ndarray]:
     dataset = QM9Dataset()
     df = dataset.manifest
     logger.info(f"dataset manifest:\n{df}")
@@ -26,15 +27,13 @@ def prepare_data() -> Tuple[np.ndarray]:
     return df, featset.result
 
 
-if __name__ == "__main__":
-    logger.setLevel(logging.DEBUG)
-
+async def main():
     #cluster = LocalCluster(host='127.0.0.1', scheduler_port=8786, dashboard_address=':8787')
     #cluster.adapt(minimum=1, maximum=8)
     #client = Client(cluster)
     #client = Client()
 
-    raw_df, (trainset, testset) = prepare_data()
+    raw_df, (trainset, testset) = await prepare_data()
 
     model_path = data_root.joinpath("models", "svr.pkl")
     model_path.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
@@ -69,3 +68,7 @@ if __name__ == "__main__":
 
     mae = mean_absolute_error(testset.y, y_pred)
     logger.info(f"test MAE: {mae:.4f}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())

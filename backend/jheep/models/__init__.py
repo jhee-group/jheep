@@ -1,7 +1,7 @@
 from sqlmodel.sql.expression import Select, SelectOfScalar
 
 from .generics import M_UUID, M
-from .model import (
+from .models import (
     ModelStore, ModelStoreCreate,
     Model, ModelCreate,
 )
