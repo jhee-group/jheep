@@ -45,7 +45,6 @@ services:
     working_dir: ${BACK_APP_DIR}
     depends_on:
       - db
-      - memcached
       - redis
 
   worker:

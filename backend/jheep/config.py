@@ -47,6 +47,7 @@ class DefaultSettings(BaseSettings):
     database_pool_recycle_seconds: int = 600
 
     redis_url: str = "redis://redis:6379"
+    use_cache: bool = True
 
     csrf_cookie_name: str = "jheep_csrftoken"
     csrf_cookie_secure: bool = True
