@@ -3,13 +3,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..db.main import get_async_session
 from ..repositories.base import get_repository
-from ..repositories.model import ModelStoreRepository, ModelRepository
+from ..repositories.filestore import FileStoreRepository
+from ..repositories.model import ModelRepository
 
 
-async def get_modelstore_repository(
+async def get_filestore_repository(
     session: AsyncSession = Depends(get_async_session),
-) -> ModelStoreRepository:
-    return get_repository(ModelStoreRepository, session)
+) -> FileStoreRepository:
+    return get_repository(FileStoreRepository, session)
 
 
 async def get_model_repository(

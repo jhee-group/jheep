@@ -153,6 +153,10 @@ class BaseRepository(BaseRepositoryProtocol, Generic[M]):
         await self.session.commit()
         return objs
 
+    async def count_all(self) -> int:
+        statement = select(self.model)
+        return await self._count(statement)
+
     async def _count(self, statement: Select) -> int:
         count_statement = statement.with_only_columns(
             [func.count()], maintain_column_froms=True  # type: ignore

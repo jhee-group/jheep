@@ -7,18 +7,17 @@ from sqlalchemy import Column
 from sqlalchemy.orm import declarative_mixin
 from sqlalchemy.sql import func
 from sqlalchemy_utils import UUIDType
-from sqlmodel import SQLModel, Field
 
 from .types import TIMESTAMPAware
 
 
-class BaseModel(SQLModel):
+class BaseModel:
     pass
 
 
 @declarative_mixin
 class UUIDModel(BaseModel):
-    id: UUID4 = Field(sa_column=Column(UUIDType, primary_key=True, default=uuid.uuid4))
+    id: UUID4 = Column(UUIDType, primary_key=True, default=uuid.uuid4)
 
 
 def now_utc():
@@ -27,21 +26,21 @@ def now_utc():
 
 @declarative_mixin
 class CreatedUpdatedAt(BaseModel):
-    created_at: datetime = Field(sa_column=Column(
+    created_at: datetime = Column(
         TIMESTAMPAware(timezone=True),
         nullable=False,
         index=True,
         default=now_utc,
         server_default=func.now(),
-    ))
-    updated_at: datetime = Field(sa_column=Column(
+    )
+    updated_at: datetime = Column(
         TIMESTAMPAware(timezone=True),
         nullable=False,
         index=True,
         default=now_utc,
         server_default=func.now(),
         onupdate=now_utc,
-    ))
+    )
 
 
 M = TypeVar("M", bound=BaseModel)

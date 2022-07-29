@@ -4,10 +4,8 @@ from typing import Mapping, TypedDict
 
 from jheep.models import (
     M,
-    ModelStore,
-    ModelStoreCreate,
-    Model,
-    ModelCreate,
+    FileStore,
+    ModelFile,
 )
 from jheep.config import settings
 
@@ -20,32 +18,31 @@ now = datetime.now(timezone.utc)
 class TestData(TypedDict):
     __test__ = False
 
-    modelstore: ModelMapping[ModelStore]
-    model: ModelMapping[Model]
+    filestore: ModelMapping[FileStore]
+    modelfile: ModelMapping[ModelFile]
 
 
-store_id = uuid.uuid4()
-model_id = uuid.uuid4()
+filestore_id = uuid.uuid4()
+modelfile_id = uuid.uuid4()
 
-modelstore: ModelMapping[ModelStore] = {
-    "local": ModelStore(
-        id=store_id,
-        name="local",
-        url=None,
+filestore: ModelMapping[FileStore] = {
+    "local": FileStore(
+        id=filestore_id,
+        url="file:///tmp",
     ),
 }
 
-model: ModelMapping[Model] = {
-    "basic-model": Model(
-        id=model_id,
+model: ModelMapping[ModelFile] = {
+    "basic-model": ModelFile(
+        id=modelfile_id,
         name="basic-model",
         path="basic-model/modelfile",
-        modelstore_id=store_id,
+        filestore_id=filestore_id,
     ),
 }
 
 data_mapping: TestData = {
-    "modelstore": modelstore,
+    "filestore": filestore,
     "model": model,
 }
 
