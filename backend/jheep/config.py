@@ -100,7 +100,6 @@ match env:
         settings = DefaultSettings()
     case Environment.TEST.value:
         settings = DefaultSettings(
-            database_host="localhost",
             database_name="jheep_test",
         )
     case _:

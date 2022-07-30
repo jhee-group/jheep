@@ -113,7 +113,32 @@ services:
 #    depends_on:
 #      - server
 #      - scheduler
-        
+      
+  dev:
+    image: ${DOCKER_REGISTRY}/jheep-dev:latest
+    build:
+      context: ${JHEEP_PATH}/backend
+      dockerfile: .docker/Dockerfile.dev
+      args:
+        - GIT_REF=${GIT_REF}
+        - APP_DIR=${BACK_APP_DIR}
+    volumes:
+      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
+    environment:
+      - JHEEP_PATH=${BACK_APP_DIR}
+      - DATABASE_TYPE=POSTGRESQL
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=jheep_db
+      - ENVIRONMENT=development
+    working_dir: ${BACK_APP_DIR}
+    depends_on:
+      - db
+      - redis
+
+       
 volumes:
   jheep_db:
     driver: local

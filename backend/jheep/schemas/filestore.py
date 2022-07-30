@@ -1,13 +1,12 @@
 from pathlib import Path
 
-from frul import furl
 from pydantic import UUID4, AnyUrl, FileUrl
 
-from .generics import BaseModel, UUIDModel, CreatedUpdatedAt
+from .generics import UUIDModel, CreatedUpdatedAt
 
 
-class FileStoreBase(BaseModel, UUIDModel):
-    url: AnyUrl | FileUrl | furl | str
+class FileStoreBase(UUIDModel):
+    url: AnyUrl | FileUrl | str
 
 
 class FileStore(FileStoreBase):
@@ -26,7 +25,7 @@ class FileStoreRead(FileStoreBase):
     pass
 
 
-class FileBase(BaseModel, UUIDModel, CreatedUpdatedAt):
+class FileBase(UUIDModel, CreatedUpdatedAt):
     path: Path | str
     filestore_id: UUID4
     filestore: FileStore

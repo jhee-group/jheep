@@ -8,7 +8,7 @@ from ..schemas import (
     FileStore, FileStoreCreate, FileRead,
     MLModel, MLModelCreate, MLModelRead,
 )
-from ..repositories.model import (
+from ..repositories import (
     FileStoreRepository,
     MLModelRepository,
 )
