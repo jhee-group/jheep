@@ -87,24 +87,22 @@ fn_db_cmd()
 {
     [[ $# -lt 1 ]] && fn_help && exit 1
 
+    container="db"
     dbuser="postgres"
     dbname="jheep_db"
 
     case $1 in
         "logs")
-            ${docker_cmd} logs db
+            ${docker_cmd} logs ${container}
             ;;
-        "createdb")
-            ${docker_cmd} exec db createdb -U ${dbuser} ${dbname}
-            ;;
-        "dropdb")
-            ${docker_cmd} exec db dropdb -U ${dbuser} ${dbname}
+        "reset")
+            ${docker_cmd} exec ${container} bash -c "dropdb -U ${dbuser} ${dbname} && createdb -U ${dbuser} ${dbname}"
             ;;
         "psql")
-            ${docker_cmd} exec db psql -U ${dbuser} ${@:2}
+            ${docker_cmd} exec ${container} psql -U ${dbuser} ${@:2}
             ;;
         *)
-            fn_help
+            ${docker_cmd} exec ${container} ${@:1}
             ;;
     esac
 }
