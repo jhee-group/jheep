@@ -51,9 +51,8 @@ dependencies = [
   "pycountry",
   "pydantic[dotenv]",
   "python-multipart",
-  "sqlalchemy <= 1.4.35",
+  "sqlalchemy",
   "sqlalchemy-utils",
-  "sqlmodel",
   "typer",
   "uvicorn[standard]",
 ]

@@ -1,27 +1,18 @@
-from pathlib import Path
-
-from pydantic import Json
-from sqlalchemy import Column
+from pydantic import UUID4, Json
+from sqlalchemy import Column, ForeignKey
 from sqlalchemy.types import JSON
+from sqlalchemy_utils import UUIDType
 
-from .generics import BaseModel, UUIDModel, CreatedUpdatedAt
-from .filestore import FileStore, FileModel
-
-
-class DatasetBase(BaseModel):
-    path: Path | str
-    data_schema: Json | None
-    filestore: FileStore
+from .filestore import File
 
 
-class Dataset(DatasetBase, FileModel, UUIDModel, CreatedUpdatedAt, table=True):
+class Dataset(File):
+    __tablename__ = "dataset"
+
+    id: UUID4 = Column(UUIDType, ForeignKey("file.id"), primary_key=True)
     name: str
     data_schema: Json | None = Column(JSON, nullable=True)
 
-
-class DatasetCreate(DatasetBase):
-    pass
-
-
-class DatasetRead(DatasetBase):
-    pass
+    __mapper_args__ = {
+        "polymorphic_identity": "dataset",
+    }

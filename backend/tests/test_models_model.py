@@ -1,20 +1,20 @@
 from typing import Tuple
 import pytest
 
-from sqlmodel import select
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from jheep.models import (
     FileStore,
-    ModelFile,
+    MLModel,
 )
 from jheep.repositories import (
     FileStoreRepository,
-    ModelFileRepository,
+    MLModelRepository,
     get_repository,
 )
 
-from tests.data import TestData, filestore_id, modelfile_id
+from tests.data import TestData, filestore_id, mlmodel_id
 
 
 @pytest.mark.asyncio
@@ -36,10 +36,10 @@ async def test_file_store(test_env: Tuple[AsyncSession, TestData]):
 async def test_model(test_env: Tuple[AsyncSession, TestData]):
     session, data_mapping = test_env
 
-    model1 = data_mapping["model"]["basic-model"]
+    model1 = data_mapping["mlmodel"]["basic-model"]
 
-    model_repo = get_repository(ModelFileRepository, session)
-    statement = select(ModelFile).where(ModelFile.id == modelfile_id)
+    model_repo = get_repository(MLModelRepository, session)
+    statement = select(MLModel).where(MLModel.id == mlmodel_id)
     model2 = await model_repo.get_one_or_none(statement)
 
     assert model2 is not None

@@ -5,7 +5,7 @@ from typing import Mapping, TypedDict
 from jheep.models import (
     M,
     FileStore,
-    ModelFile,
+    MLModel,
 )
 from jheep.config import settings
 
@@ -19,11 +19,11 @@ class TestData(TypedDict):
     __test__ = False
 
     filestore: ModelMapping[FileStore]
-    modelfile: ModelMapping[ModelFile]
+    mlmodel: ModelMapping[MLModel]
 
 
 filestore_id = uuid.uuid4()
-modelfile_id = uuid.uuid4()
+mlmodel_id = uuid.uuid4()
 
 filestore: ModelMapping[FileStore] = {
     "local": FileStore(
@@ -32,9 +32,9 @@ filestore: ModelMapping[FileStore] = {
     ),
 }
 
-model: ModelMapping[ModelFile] = {
-    "basic-model": ModelFile(
-        id=modelfile_id,
+mlmodel: ModelMapping[MLModel] = {
+    "basic-model": MLModel(
+        id=mlmodel_id,
         name="basic-model",
         path="basic-model/modelfile",
         filestore_id=filestore_id,
@@ -43,7 +43,7 @@ model: ModelMapping[ModelFile] = {
 
 data_mapping: TestData = {
     "filestore": filestore,
-    "model": model,
+    "mlmodel": mlmodel,
 }
 
 __all__ = [

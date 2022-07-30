@@ -6,19 +6,43 @@ from pydantic import UUID4, AnyUrl, FileUrl
 from .generics import BaseModel, UUIDModel, CreatedUpdatedAt
 
 
-class FileStore(BaseModel, UUIDModel):
+class FileStoreBase(BaseModel, UUIDModel):
     url: AnyUrl | FileUrl | furl | str
 
 
-class FileStoreCreate(FileStore):
+class FileStore(FileStoreBase):
     pass
 
 
-class FileStoreUpdate(FileStore):
+class FileStoreCreate(FileStoreBase):
     pass
 
 
-class FileModel(BaseModel, UUIDModel, CreatedUpdatedAt):
+class FileStoreUpdate(FileStoreBase):
+    pass
+
+
+class FileStoreRead(FileStoreBase):
+    pass
+
+
+class FileBase(BaseModel, UUIDModel, CreatedUpdatedAt):
     path: Path | str
     filestore_id: UUID4
     filestore: FileStore
+
+
+class File(FileBase):
+    pass
+
+
+class FileCreate(FileBase):
+    pass
+
+
+class FileUpdate(FileBase):
+    pass
+
+
+class FileRead(FileBase):
+    pass

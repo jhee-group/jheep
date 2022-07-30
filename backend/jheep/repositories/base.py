@@ -11,7 +11,7 @@ from typing import (
 )
 
 from pydantic import UUID4
-from sqlmodel import func, select
+from sqlalchemy import func, select
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, RelationshipProperty

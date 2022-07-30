@@ -1,40 +1,41 @@
+from typing import List
 from pathlib import Path
 
 from furl import furl
 from pydantic import UUID4, AnyUrl, FileUrl
-from sqlalchemy import Column, UniqueConstraint
-from sqlalchemy.orm import declarative_mixin, declared_attr, relationship
+from sqlalchemy import Column, ForeignKey, UniqueConstraint
+from sqlalchemy.orm import relationship
 from sqlalchemy.types import String
 from sqlalchemy_utils import UUIDType
 
-from .generics import BaseModel, UUIDModel, CreatedUpdatedAt
+from .generics import Base, UUIDModel, CreatedUpdatedAt
 from ..services.files import validate_url, get_file_contents, get_file_sha256_hash
 
 
 # FileStore model
 
-class FileStoreBase(BaseModel):
-    url: AnyUrl | FileUrl | str | None = None
-
-
-class FileStore(FileStoreBase, UUIDModel, CreatedUpdatedAt, table=True):
+class FileStore(UUIDModel, Base):
+    __tablename__ = "filestore"
     __table_args__ = (UniqueConstraint("url"), )
 
     url: AnyUrl | FileUrl | str = Column(String, nullable=False)
+    files: List["File"] = relationship("File", back_populates="filestore")
 
 
-# FileMixin
-
-@declarative_mixin
-class FileModel(BaseModel):
+# File model
+class File(UUIDModel, CreatedUpdatedAt, Base):
+    __tablename__ = "file"
     __table_args__ = (UniqueConstraint("filestore_id", "path"), )
 
-    path: Path | str = Column(String, nullable=False)
-    filestore_id: UUID4 = Column(UUIDType, nullable=False, foreign_key="filestore.id")
+    type: str = Column(String(32))
+    path: Path | str = Column(String)
+    filestore_id: UUID4 = Column(UUIDType, ForeignKey("filestore.id"))
+    filestore: FileStore = relationship("FileStore", back_populates="files")
 
-    @declared_attr
-    def filestore(cls):
-        return relationship("FileStore")
+    __mapper_args__ = {
+        "polymorphic_identity": "file",
+        "polymorphic_on": type,
+    }
 
     async def get_full_path(self):
         return furl(self.filestore.url).add({"path": self.path})

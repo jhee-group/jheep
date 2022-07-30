@@ -12,8 +12,8 @@ os.environ["ENVIRONMENT"] = "test"
 import pytest
 from sqlalchemy_utils import create_database, drop_database
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, AsyncSession
-from sqlmodel import SQLModel
 
+from jheep.models import Base
 from jheep.db.types import DatabaseConnectionParameters, DatabaseType, get_driver
 from jheep.db.engine import create_async_engine
 from jheep.config import settings
@@ -71,7 +71,7 @@ async def test_connection(
 
 @pytest.fixture(scope="session")
 async def create_test_db(test_connection: AsyncConnection):
-    await test_connection.run_sync(SQLModel.metadata.create_all)
+    await test_connection.run_sync(Base.metadata.create_all)
 
 
 @pytest.fixture(scope="session")

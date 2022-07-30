@@ -1,25 +1,15 @@
-from sqlmodel.sql.expression import Select, SelectOfScalar
+from .generics import Base, M, M_UUID
+from .filestore import FileStore, File
+from .dataset import Dataset
+from .mlmodel import MLModel
 
-from .generics import M, M_UUID
-from .filestore import FileStore
-from .dataset import Dataset, DatasetCreate, DatasetRead
-from .modelfile import ModelFile, ModelFileCreate, ModelFileRead
-from .test import Song, SongCreate
-
-
-SelectOfScalar.inherit_cache = True  # type: ignore
-Select.inherit_cache = True  # type: ignore
 
 __all__ = [
-    "M",
-    "M_UUID",
+    "Base",
     "FileStore",
+    "File",
     "Dataset",
-    "DatasetCreate",
-    "DatasetRead",
-    "ModelFile",
-    "ModelFileCreate",
-    "ModelFileRead",
-    "Song",
-    "SongCreate",
+    "M",
+    "MLModel",
+    "M_UUID",
 ]

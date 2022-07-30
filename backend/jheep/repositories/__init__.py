@@ -1,10 +1,10 @@
 from .filestore import FileStoreRepository
-from .modelfile import ModelFileRepository
+from .mlmodel import MLModelRepository
 from .base import get_repository
 
 
 __all__ = [
     "FileStoreRepository",
-    "ModelFileRepository",
+    "MLModelRepository",
     "get_repository",
 ]

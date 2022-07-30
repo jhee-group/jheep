@@ -4,11 +4,14 @@ from typing import TypeVar
 
 from pydantic import UUID4
 from sqlalchemy import Column
-from sqlalchemy.orm import declarative_mixin
+from sqlalchemy.orm import declarative_base, declarative_mixin
 from sqlalchemy.sql import func
 from sqlalchemy_utils import UUIDType
 
 from .types import TIMESTAMPAware
+
+
+Base = declarative_base()
 
 
 class BaseModel:

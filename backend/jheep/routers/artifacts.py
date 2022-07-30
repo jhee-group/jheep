@@ -2,19 +2,19 @@ from typing import List
 
 from fastapi import APIRouter, Depends
 from fastapi_versioning import version
-from sqlmodel import select
+from sqlalchemy import select
 
-from ..models import (
-    ModelStore, ModelStoreCreate,
-    Model, ModelCreate,
+from ..schemas import (
+    FileStore, FileStoreCreate, FileRead,
+    MLModel, MLModelCreate, MLModelRead,
 )
 from ..repositories.model import (
-    ModelStoreRepository,
-    ModelRepository,
+    FileStoreRepository,
+    MLModelRepository,
 )
 from ..dependencies.repositories import (
-    get_modelstore_repository,
-    get_model_repository,
+    get_filestore_repository,
+    get_mlmodel_repository,
 )
 
 
@@ -24,40 +24,40 @@ router = APIRouter(
 )
 
 
-@router.get("/modelstores", response_model=List[ModelStore])
+@router.get("/filestores", response_model=List[FileStore])
 @version(1)
 async def get_modelstores(
-    modelstore_repo: ModelStoreRepository = Depends(get_modelstore_repository),
+    filestore_repo: FileStoreRepository = Depends(get_filestore_repository),
 ):
-    return await modelstore_repo.all()
+    return await filestore_repo.all()
 
 
-@router.get("/models", response_model=List[Model])
+@router.get("/mlmodels", response_model=List[MLModel])
 @version(1)
-async def get_models(
-    model_repo: ModelRepository = Depends(get_model_repository),
+async def get_mlmodels(
+    mlmodel_repo: MLModelRepository = Depends(get_mlmodel_repository),
 ):
-    return await model_repo.all()
+    return await mlmodel_repo.all()
 
 
-@router.post("/modelstore")
+@router.post("/filestore")
 @version(1)
-async def add_modelstore(
-    modelstore: ModelStoreCreate,
-    modelstore_repo: ModelStoreRepository = Depends(get_modelstore_repository),
+async def add_filestore(
+    filestore: FileStoreCreate,
+    filestore_repo: FileStoreRepository = Depends(get_filestore_repository),
 ):
-    s = ModelStore(name=modelstore.name, url=modelstore.url)
-    return await modelstore_repo.create(s)
+    s = FileStore(url=filestore.url)
+    return await filestore_repo.create(s)
 
 
-@router.post("/model")
+@router.post("/mlmodel")
 @version(1)
-async def add_model(
-    model: ModelCreate,
-    modelstore_repo: ModelStoreRepository = Depends(get_modelstore_repository),
-    model_repo: ModelRepository = Depends(get_model_repository),
+async def add_mlmodel(
+    mlmodel: MLModelCreate,
+    filestore_repo: FileStoreRepository = Depends(get_filestore_repository),
+    mlmodel_repo: MLModelRepository = Depends(get_mlmodel_repository),
 ):
-    statement = select(ModelStore).where(ModelStore.id == model.modelstore_id)
-    ms = await modelstore_repo.get_one_or_none(statement)
-    m = Model(name=model.name, path=str(model.path), modelstore_id=ms.id)
-    return await model_repo.create(m)
+    statement = select(FileStore).where(FileStore.id == mlmodel.filestore_id)
+    fs = await filestore_repo.get_one_or_none(statement)
+    m = MLModel(name=mlmodel.name, path=mlmodel.path, filestore_id=fs.id)
+    return await mlmodel_repo.create(m)
