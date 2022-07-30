@@ -97,13 +97,13 @@ def test_session_manager(test_session: AsyncSession):
 @pytest.fixture(scope="session")
 @pytest.mark.asyncio
 async def test_file():
-    filepath = data_mapping["model"]["basic-model"].path
+    filepath = data_mapping["mlmodel"]["basic-model"].path
     async with aiofiles.tempfile.TemporaryDirectory() as tmpd:
         path = Path(tmpd, filepath)
         path.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
         async with aiofiles.open(path, 'wb') as tmpf:
             await tmpf.write(b"1234567890")
-        data_mapping["modelstore"]["local"].url = f"file://{tmpd}"
+        data_mapping["filestore"]["local"].url = f"file://{tmpd}"
         yield
 
 

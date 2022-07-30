@@ -18,7 +18,7 @@ from tests.data import TestData, filestore_id, mlmodel_id
 
 
 @pytest.mark.asyncio
-async def test_file_store(test_env: Tuple[AsyncSession, TestData]):
+async def test_filestore(test_env: Tuple[AsyncSession, TestData]):
     session, data_mapping = test_env
 
     store1 = data_mapping["filestore"]["local"]
@@ -28,12 +28,12 @@ async def test_file_store(test_env: Tuple[AsyncSession, TestData]):
     store2 = await filestore_repo.get_one_or_none(statement)
 
     assert store2 is not None
-    assert store1.id == store2.id
+    assert store1.url == store2.url
     assert await store2.validate()
 
 
 @pytest.mark.asyncio
-async def test_model(test_env: Tuple[AsyncSession, TestData]):
+async def test_mlmodel(test_env: Tuple[AsyncSession, TestData]):
     session, data_mapping = test_env
 
     model1 = data_mapping["mlmodel"]["basic-model"]
@@ -44,6 +44,7 @@ async def test_model(test_env: Tuple[AsyncSession, TestData]):
 
     assert model2 is not None
     assert model1.path == model2.path
+    assert await model2.validate()
 
     contents = await model2.get_contents()
     assert contents == b"1234567890"

@@ -21,6 +21,9 @@ class FileStore(UUIDModel, Base):
     url: AnyUrl | FileUrl | str = Column(String, nullable=False)
     files: List["File"] = relationship("File", back_populates="filestore")
 
+    async def validate(self) -> bool:
+        return validate_url(self.url)
+
 
 # File model
 class File(UUIDModel, CreatedUpdatedAt, Base):
@@ -38,7 +41,8 @@ class File(UUIDModel, CreatedUpdatedAt, Base):
     }
 
     async def get_full_path(self):
-        return furl(self.filestore.url).add({"path": self.path})
+        url = furl(self.filestore.url).add(path=self.path)
+        return url
 
     async def validate(self) -> bool:
         full_path = await self.get_full_path()
