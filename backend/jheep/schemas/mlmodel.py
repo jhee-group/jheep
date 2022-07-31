@@ -1,11 +1,12 @@
 from .filestore import FileBase
+from .generics import UUIDModel, CreatedUpdatedAt
 
 
 class MLModelBase(FileBase):
     pass
 
 
-class MLModel(MLModelBase):
+class MLModel(UUIDModel, CreatedUpdatedAt, MLModelBase):
     pass
 
 
@@ -17,5 +18,5 @@ class MLModelUpdate(MLModelBase):
     pass
 
 
-class MLModelRead(MLModelBase):
+class MLModelRead(MLModel):
     pass

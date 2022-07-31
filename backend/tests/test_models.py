@@ -1,6 +1,6 @@
 from typing import Tuple
-import pytest
 
+import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 

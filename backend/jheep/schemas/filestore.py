@@ -2,15 +2,20 @@ from pathlib import Path
 
 from pydantic import UUID4, AnyUrl, FileUrl
 
-from .generics import UUIDModel, CreatedUpdatedAt
+from .generics import BaseModel, UUIDModel, CreatedUpdatedAt
 
 
-class FileStoreBase(UUIDModel):
+# FileStore schema
+
+class FileStoreBase(BaseModel):
     url: AnyUrl | FileUrl | str
 
 
-class FileStore(FileStoreBase):
+class FileStore(FileStoreBase, UUIDModel):
     pass
+
+    class Config:
+        orm_mode = True
 
 
 class FileStoreCreate(FileStoreBase):
@@ -21,18 +26,19 @@ class FileStoreUpdate(FileStoreBase):
     pass
 
 
-class FileStoreRead(FileStoreBase):
+class FileStoreRead(FileStore):
     pass
 
 
-class FileBase(UUIDModel, CreatedUpdatedAt):
+# File schema
+
+class FileBase(BaseModel):
     path: Path | str
     filestore_id: UUID4
+
+
+class File(UUIDModel, CreatedUpdatedAt, FileBase):
     filestore: FileStore
-
-
-class File(FileBase):
-    pass
 
 
 class FileCreate(FileBase):
@@ -43,5 +49,5 @@ class FileUpdate(FileBase):
     pass
 
 
-class FileRead(FileBase):
+class FileRead(File):
     pass
