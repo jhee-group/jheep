@@ -1,19 +1,23 @@
 from typing import Tuple
 
 import pytest
-from sqlalchemy.ext.asyncio import AsyncSession
 from httpx import AsyncClient
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from jheep.main import app
+from jheep.config import settings
 
 from tests.data import TestData, filestore_id, mlmodel_id
 
 
-@pytest.mark.anyio
-async def test_filestore(test_env: Tuple[AsyncSession, TestData]):
+@pytest.mark.asyncio
+async def test_filestore(
+    test_env: Tuple[AsyncSession, TestData],
+    test_client: AsyncClient,
+):
     session, data_mapping = test_env
+    client = test_client
 
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        response = await ac.get("/v1/artifact/filestores")
+    response = await client.get("/v1/artifact/filestores")
+
     assert response.status_code == 200
     assert response.json()[0]['id'] == filestore_id

@@ -10,16 +10,21 @@ os.environ["ENVIRONMENT"] = "test"
 
 
 import pytest
+from fastapi import FastAPI
+from asgi_lifespan import LifespanManager
+from httpx import AsyncClient
 from sqlalchemy_utils import create_database, drop_database
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, AsyncSession
 
+from jheep.main import app
 from jheep.models import Base
+from jheep.db.main import get_async_session
 from jheep.db.types import DatabaseConnectionParameters, DatabaseType, get_driver
 from jheep.db.engine import create_async_engine
 from jheep.config import settings
 
 from tests.data import TestData, data_mapping
-from tests.types import GetTestDatabase, GetSessionManager
+from tests.types import GetTestDatabase, GetSessionManager, TestClientGeneratorType
 
 
 fixture_scope = "session"
@@ -100,7 +105,6 @@ def test_session_manager(test_session: AsyncSession):
 
 
 @pytest.fixture(scope=fixture_scope)
-@pytest.mark.asyncio
 async def test_file():
     filepath = data_mapping["mlmodel"]["basic-model"].path
     async with aiofiles.tempfile.TemporaryDirectory() as tmpd:
@@ -112,9 +116,7 @@ async def test_file():
         yield
 
 
-"""
 @pytest.fixture(scope=fixture_scope)
-@pytest.mark.asyncio
 async def test_env(
     test_session_manager: GetSessionManager,
     test_file,
@@ -127,16 +129,47 @@ async def test_env(
         yield session, data_mapping
 """
 @pytest.fixture(scope=fixture_scope)
-@pytest.mark.asyncio
 async def test_env(
-    test_session: AsyncSession,
     test_file,
+    test_session: AsyncSession,
 ) -> Tuple[AsyncSession, TestData]:
     for model in data_mapping.values():
         for obj in model.values():
             test_session.add(obj)
     await test_session.commit()
+    for model in data_mapping.values():
+        for obj in model.values():
+            await test_session.refresh(obj)
     yield test_session, data_mapping
+"""
+
+
+@pytest.fixture(scope=fixture_scope)
+def test_client_generator(
+    test_session: AsyncSession,
+):
+
+    @contextlib.asynccontextmanager
+    async def _test_client_generator(app: FastAPI):
+        app.dependency_overrides = {}
+        app.dependency_overrides[get_async_session] = lambda: test_session
+
+        async with LifespanManager(app):
+            async with AsyncClient(
+                app=app,
+                base_url="http://server:8801",
+            ) as test_client:
+                yield test_client
+
+    return _test_client_generator
+
+
+@pytest.fixture(scope=fixture_scope)
+async def test_client(
+    test_client_generator: TestClientGeneratorType,
+) -> AsyncGenerator[AsyncClient, None]:
+    async with test_client_generator(app) as client:
+        yield client
 
 
 @pytest.fixture
