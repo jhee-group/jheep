@@ -4,15 +4,8 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from jheep.models import (
-    FileStore,
-    MLModel,
-)
-from jheep.repositories import (
-    FileStoreRepository,
-    MLModelRepository,
-    get_repository,
-)
+from jheep import models as m
+from jheep import repositories as r
 
 from tests.data import TestData, filestore_id, mlmodel_id
 
@@ -23,8 +16,8 @@ async def test_filestore(test_env: Tuple[AsyncSession, TestData]):
 
     store1 = data_mapping["filestore"]["local"]
 
-    filestore_repo = get_repository(FileStoreRepository, session)
-    statement = select(FileStore).where(FileStore.id == filestore_id)
+    filestore_repo = r.get_repository(r.FileStoreRepository, session)
+    statement = select(m.FileStore).where(m.FileStore.id == filestore_id)
     store2 = await filestore_repo.get_one_or_none(statement)
 
     assert store2 is not None
@@ -38,8 +31,8 @@ async def test_mlmodel(test_env: Tuple[AsyncSession, TestData]):
 
     model1 = data_mapping["mlmodel"]["basic-model"]
 
-    model_repo = get_repository(MLModelRepository, session)
-    statement = select(MLModel).where(MLModel.id == mlmodel_id)
+    model_repo = r.get_repository(r.MLModelRepository, session)
+    statement = select(m.MLModel).where(m.MLModel.id == mlmodel_id)
     model2 = await model_repo.get_one_or_none(statement)
 
     assert model2 is not None
