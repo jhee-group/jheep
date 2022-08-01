@@ -4,8 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi_versioning import version
 from sqlalchemy import select
 
-from .. import models
-from .. import schemas
+from .. import models as m, schemas as s
 from ..repositories import (
     FileStoreRepository,
     MLModelRepository,
@@ -14,6 +13,7 @@ from ..dependencies.repositories import (
     get_filestore_repository,
     get_mlmodel_repository,
 )
+from ..exceptions import ObjectNotFound
 
 
 router = APIRouter(
@@ -22,42 +22,65 @@ router = APIRouter(
 )
 
 
-@router.get("/filestores", response_model=List[schemas.FileStore])
+@router.get("/filestores", response_model=List[s.FileStore])
 @version(1)
-async def get_modelstores(
+async def get_filestores(
     filestore_repo: FileStoreRepository = Depends(get_filestore_repository),
 ):
-    stores = await filestore_repo.all()
-    return [schemas.FileStore.from_orm(fs) for fs in stores]
+    db_objs = await filestore_repo.all()
+    return [s.FileStore.from_orm(db_obj) for db_obj in db_objs]
 
 
-@router.get("/mlmodels", response_model=List[schemas.MLModel])
+@router.post("/filestore", response_model=s.FileStore)
+@version(1)
+async def add_filestore(
+    obj: s.FileStoreCreate,
+    filestore_repo: FileStoreRepository = Depends(get_filestore_repository),
+):
+    return await filestore_repo.create(obj)
+
+
+@router.put("/filestore", response_model=s.FileStore)
+@version(1)
+async def update_filestore(
+    obj: s.FileStoreUpdate,
+    filestore_repo: FileStoreRepository = Depends(get_filestore_repository),
+):
+    statement = select(m.FileStore).where(m.FileStore.id == obj.id)
+    db_obj = await filestore_repo.get_one_or_none(statement)
+    if db_obj is None:
+        raise ObjectNotFound
+    db_obj = await filestore_repo.update(db_obj=db_obj, obj=obj)
+    return s.FileStore.from_orm(db_obj)
+
+
+@router.get("/mlmodels", response_model=List[s.MLModel])
 @version(1)
 async def get_mlmodels(
     mlmodel_repo: MLModelRepository = Depends(get_mlmodel_repository),
 ):
     mlmodels = await mlmodel_repo.all()
-    return [schemas.MLModel.from_orm(mm) for mm in mlmodels]
-
-
-@router.post("/filestore")
-@version(1)
-async def add_filestore(
-    filestore: schemas.FileStoreCreate,
-    filestore_repo: FileStoreRepository = Depends(get_filestore_repository),
-):
-    fs = models.FileStore(url=filestore.url)
-    return await filestore_repo.create(fs)
+    return [s.MLModel.from_orm(mm) for mm in mlmodels]
 
 
 @router.post("/mlmodel")
 @version(1)
 async def add_mlmodel(
-    mlmodel: schemas.MLModelCreate,
-    filestore_repo: FileStoreRepository = Depends(get_filestore_repository),
+    obj: s.MLModelCreate,
     mlmodel_repo: MLModelRepository = Depends(get_mlmodel_repository),
 ):
-    statement = select(models.FileStore).where(models.FileStore.id == mlmodel.filestore_id)
-    fs = await filestore_repo.get_one_or_none(statement)
-    m = models.MLModel(name=mlmodel.name, path=mlmodel.path, filestore_id=fs.id)
-    return await mlmodel_repo.create(m)
+    return await mlmodel_repo.create(obj)
+
+
+@router.put("/mlmodel", response_model=s.MLModel)
+@version(1)
+async def update_mlmodel(
+    obj: s.MLModelUpdate,
+    mlmodel_repo: MLModelRepository = Depends(get_mlmodel_repository),
+):
+    statement = select(m.MLModel).where(m.MLModel.id == obj.id)
+    db_obj = await mlmodel_repo.get_one_or_none(statement)
+    if db_obj is None:
+        raise ObjectNotFound
+    db_obj = await mlmodel_repo.update(db_obj=db_obj, obj=obj)
+    return s.MLModel.from_orm(db_obj)

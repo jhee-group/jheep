@@ -1,9 +1,12 @@
+from .generics import (
+    PM, PM_CREATE, PM_UPDATE,
+)
 from .filestore import (
-    FileStore, FileStoreCreate, FileStoreUpdate, FileStoreRead,
-    File, FileCreate, FileUpdate, FileRead,
+    FileStore, FileStoreCreate, FileStoreUpdate,
+    File, FileCreate, FileUpdate,
 )
 from .mlmodel import (
-    MLModel, MLModelCreate, MLModelUpdate, MLModelRead,
+    MLModel, MLModelCreate, MLModelUpdate,
 )
 
 
@@ -11,13 +14,13 @@ __all__ = [
     "FileStore",
     "FileStoreCreate",
     "FileStoreUpdate",
-    "FileStoreRead",
     "File",
     "FileCreate",
     "FileUpdate",
-    "FileRead",
     "MLModel",
     "MLModelCreate",
     "MLModelUpdate",
-    "MLModelRead",
+    "PM",
+    "PM_CREATE",
+    "PM_UPDATE",
 ]

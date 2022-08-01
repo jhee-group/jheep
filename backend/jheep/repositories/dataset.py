@@ -1,6 +1,9 @@
-from ..models import Dataset
+from .. import models as m, schemas as s
 from .base import BaseRepository, UUIDRepositoryMixin
 
 
-class DatasetRepository(BaseRepository[Dataset], UUIDRepositoryMixin[Dataset]):
-    model = Dataset
+class DatasetRepository(
+    BaseRepository[m.Dataset, s.DatasetCreate, s.DatasetUpdate],
+    UUIDRepositoryMixin[m.Dataset],
+):
+    model = m.Dataset

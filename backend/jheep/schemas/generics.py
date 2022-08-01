@@ -12,9 +12,6 @@ class BaseModel(PydanticBaseModel):
         orm_mode = True
 
 
-PM = TypeVar("PM", bound=BaseModel)
-
-
 class UUIDModel(BaseModel):
     id: UUID4
 
@@ -24,6 +21,14 @@ class CreatedUpdatedAt(BaseModel):
     updated_at: datetime
 
 
+PM = TypeVar("PM", bound=BaseModel)
+PM_UUID = TypeVar("PM_UUID", bound=UUIDModel)
+
+
 class PaginatedResults(GenericModel, Generic[PM]):
     count: int
     results: List[PM]
+
+
+PM_CREATE = TypeVar("PM_CREATE", bound=BaseModel)
+PM_UPDATE = TypeVar("PM_UPDATE", bound=BaseModel)

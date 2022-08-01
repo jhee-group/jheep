@@ -1,4 +1,3 @@
-from pydantic import UUID4
 from sqlalchemy import Column
 from sqlalchemy.schema import ForeignKey
 from sqlalchemy.types import String
@@ -10,8 +9,8 @@ from .filestore import File
 class MLModel(File):
     __tablename__ = "mlmodel"
 
-    id: UUID4 = Column(UUIDType, ForeignKey("file.id"), primary_key=True)
-    name: str = Column(String)
+    id = Column(UUIDType, ForeignKey("file.id"), primary_key=True)
+    name = Column(String)
 
     __mapper_args__ = {
         "polymorphic_identity": "mlmodel",

@@ -3,7 +3,7 @@ from .generics import UUIDModel, CreatedUpdatedAt
 
 
 class MLModelBase(FileBase):
-    pass
+    name: str
 
 
 class MLModel(UUIDModel, CreatedUpdatedAt, MLModelBase):
@@ -14,9 +14,5 @@ class MLModelCreate(MLModelBase):
     pass
 
 
-class MLModelUpdate(MLModelBase):
-    pass
-
-
-class MLModelRead(MLModel):
+class MLModelUpdate(UUIDModel, MLModelBase):
     pass

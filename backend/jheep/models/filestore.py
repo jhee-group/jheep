@@ -18,8 +18,8 @@ class FileStore(UUIDModel, Base):
     __tablename__ = "filestore"
     __table_args__ = (UniqueConstraint("url"), )
 
-    url: AnyUrl | FileUrl | str = Column(String, nullable=False)
-    files: List["File"] = relationship("File", back_populates="filestore")
+    url = Column(String, nullable=False)
+    files = relationship("File", back_populates="filestore")
 
     async def validate(self) -> bool:
         return validate_url(self.url)
@@ -30,10 +30,10 @@ class File(UUIDModel, CreatedUpdatedAt, Base):
     __tablename__ = "file"
     __table_args__ = (UniqueConstraint("filestore_id", "path"), )
 
-    type: str = Column(String(32))
-    path: Path | str = Column(String)
-    filestore_id: UUID4 = Column(UUIDType, ForeignKey("filestore.id"))
-    filestore: FileStore = relationship("FileStore", back_populates="files")
+    type = Column(String(32))
+    path = Column(String, nullable=False)
+    filestore_id = Column(UUIDType, ForeignKey("filestore.id"))
+    filestore = relationship("FileStore", back_populates="files")
 
     __mapper_args__ = {
         "polymorphic_identity": "file",

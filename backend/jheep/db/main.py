@@ -16,17 +16,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         yield session
 
 
-def get_async_session_manager() -> AsyncContextManager[AsyncGenerator[AsyncSession, None]]:
-
-    @contextlib.asynccontextmanager
-    async def _get_async_session_manager(*args, **kwargs):
-        yield get_async_session()
-
-    return _get_async_session_manager
-
-
 __all__ = [
     "async_session_maker",
     "get_async_session",
-    "get_async_session_manager",
 ]

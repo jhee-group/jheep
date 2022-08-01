@@ -22,11 +22,7 @@ class FileStoreCreate(FileStoreBase):
     pass
 
 
-class FileStoreUpdate(FileStoreBase):
-    pass
-
-
-class FileStoreRead(FileStore):
+class FileStoreUpdate(FileStore):
     pass
 
 
@@ -45,9 +41,5 @@ class FileCreate(FileBase):
     pass
 
 
-class FileUpdate(FileBase):
-    pass
-
-
-class FileRead(File):
+class FileUpdate(UUIDModel, FileBase):
     pass
