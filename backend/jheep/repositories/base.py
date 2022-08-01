@@ -1,6 +1,7 @@
 import asyncio
 from typing import (
     Any,
+    Dict,
     Generic,
     List,
     Protocol,
@@ -10,17 +11,19 @@ from typing import (
     TypeVar,
 )
 
+from fastapi.encoders import jsonable_encoder
 from pydantic import UUID4
-from sqlmodel import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.engine import Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import InstrumentedAttribute, RelationshipProperty
 from sqlalchemy.sql import Executable, Select
 
-from ..models import M_UUID, M
+from ..models import M, M_UUID
+from ..schemas import PM_CREATE, PM_UPDATE
 
 
-class BaseRepositoryProtocol(Protocol[M]):
+class BaseRepositoryProtocol(Protocol[M, PM_CREATE, PM_UPDATE]):
     model: Type[M]
     session: AsyncSession
 
@@ -43,13 +46,13 @@ class BaseRepositoryProtocol(Protocol[M]):
     async def list(self, statement: Select) -> List[M]:
         ...  # pragma: no cover
 
-    async def create(self, obj: M) -> M:
+    async def create(self, obj: PM_CREATE) -> M:
         ...  # pragma: no cover
 
-    async def update(self, obj: M) -> None:
+    async def update(self, *, db_obj: M, obj: PM_UPDATE | Dict[str, Any]) -> None:
         ...  # pragma: no cover
 
-    async def delete(self, obj: M) -> None:
+    async def delete(self, db_obj: M) -> None:
         ...  # pragma: no cover
 
     async def _execute_statement(self, statement: Select) -> Result:
@@ -63,7 +66,7 @@ class UUIDRepositoryProtocol(BaseRepositoryProtocol, Protocol[M_UUID]):
         ...  # pragma: no cover
 
 
-class BaseRepository(BaseRepositoryProtocol, Generic[M]):
+class BaseRepository(BaseRepositoryProtocol, Generic[M, PM_CREATE, PM_UPDATE]):
 
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -123,35 +126,52 @@ class BaseRepository(BaseRepositoryProtocol, Generic[M]):
 
     async def get_one_or_none(self, statement: Select) -> M | None:
         results = await self._execute_statement(statement)
-        obj = results.first()
-        if obj is None:
-            return None
-        return obj[0]
+        return results.scalar()
 
     async def list(self, statement: Select) -> List[M]:
         results = await self._execute_statement(statement)
         return [result[0] for result in results.unique().all()]
 
-    async def create(self, obj: M) -> M:
-        self.session.add(obj)
+    async def create(self, obj: PM_CREATE) -> M:
+        obj_data = jsonable_encoder(obj)
+        db_obj = self.model(**obj_data)  # type: ignore
+        self.session.add(db_obj)
         await self.session.commit()
-        await self.session.refresh(obj)
-        return obj
+        await self.session.refresh(db_obj)
+        return db_obj
 
-    async def update(self, obj: M) -> None:
-        self.session.add(obj)
+    async def update(self, *, db_obj: M, obj: PM_UPDATE | Dict[str, Any]) -> M:
+        obj_data = jsonable_encoder(db_obj)
+        upd_data = jsonable_encoder(obj)
+        #if isinstance(obj, dict):
+        #    upd_data = obj
+        #else:
+        #    upd_data = obj.dict(exclude_unset=True)
+        for field in obj_data:
+            if field in upd_data:
+                setattr(db_obj, field, upd_data[field])
+        self.session.add(db_obj)
         await self.session.commit()
-        await self.session.refresh(obj)
+        await self.session.refresh(db_obj)
+        return db_obj
 
-    async def delete(self, obj: M) -> None:
-        await self.session.delete(obj)
+    async def delete(self, db_obj: M) -> None:
+        await self.session.delete(db_obj)
         await self.session.commit()
 
-    async def create_many(self, objs: List[M]) -> List[M]:
-        for obj in objs:
-            self.session.add(obj)
+    async def create_many(self, objs: List[PM_CREATE]) -> List[M]:
+        objs_data = [jsonable_encoder(obj) for obj in objs]
+        db_objs = [self.model(**obj_data) for obj_data in objs_data]
+        for db_obj in db_objs:
+            self.session.add(db_obj)
         await self.session.commit()
-        return objs
+        for db_obj in db_objs:
+            await self.session.refresh(db_obj)
+        return db_objs
+
+    async def count_all(self) -> int:
+        statement = select(self.model)
+        return await self._count(statement)
 
     async def _count(self, statement: Select) -> int:
         count_statement = statement.with_only_columns(

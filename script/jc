@@ -87,24 +87,22 @@ fn_db_cmd()
 {
     [[ $# -lt 1 ]] && fn_help && exit 1
 
+    container="db"
     dbuser="postgres"
     dbname="jheep_db"
 
     case $1 in
         "logs")
-            ${docker_cmd} logs db
+            ${docker_cmd} logs ${container}
             ;;
-        "createdb")
-            ${docker_cmd} exec db createdb -U ${dbuser} ${dbname}
-            ;;
-        "dropdb")
-            ${docker_cmd} exec db dropdb -U ${dbuser} ${dbname}
+        "reset")
+            ${docker_cmd} exec ${container} bash -c "dropdb -U ${dbuser} ${dbname} && createdb -U ${dbuser} ${dbname}"
             ;;
         "psql")
-            ${docker_cmd} exec db psql -U ${dbuser} ${@:2}
+            ${docker_cmd} exec ${container} psql -U ${dbuser} ${@:2}
             ;;
         *)
-            fn_help
+            ${docker_cmd} exec ${container} ${@:1}
             ;;
     esac
 }
@@ -177,6 +175,32 @@ fn_worker_cmd()
     esac
 }
 
+fn_dev_cmd()
+{
+    [[ $# -lt 1 ]] && fn_help && exit 1
+
+    container="dev"
+    img="${DOCKER_REGISTRY}/jheep-dev"
+
+    case $1 in
+        "build")
+            fn_check_gitrepo
+            #fn_pull "${DOCKER_REGISTRY}/jheep-base"
+            ${docker_cmd} build ${container}
+            ;;
+        "test")
+            ${docker_cmd} exec ${container} pytest -s ${@:2}
+            ;;
+        "bash")
+            ${docker_cmd} exec ${container} bash ${@:2}
+            ;;
+        *)
+            ${docker_cmd} exec ${container} ${@:1}
+            ;;
+    esac
+}
+
+
 fn_base_cmd()
 {
     [[ $# -lt 1 ]] && fn_help && exit 1
@@ -225,6 +249,7 @@ case $1 in
     "build")
         fn_server_cmd build
         fn_worker_cmd build
+        fn_dev_cmd build
         ;;
     "push")
         fn_server_cmd push
@@ -246,6 +271,9 @@ case $1 in
     "migrate")
         fn_server_cmd jheep migrate
         ;;
+    "test")
+        fn_dev_cmd test
+        ;;
     # base image cmd
     "base")
         fn_base_cmd ${@:2}
@@ -259,6 +287,9 @@ case $1 in
         ;;
     "worker")
         fn_worker_cmd ${@:2}
+        ;;
+    "dev")
+        fn_dev_cmd ${@:2}
         ;;
     *)
         fn_help

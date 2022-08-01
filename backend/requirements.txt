@@ -9,6 +9,5 @@ ipython
 psycopg2-binary
 pydantic[dotenv]
 python-multipart
-sqlmodel
 typer
 uvicorn

@@ -1,0 +1,16 @@
+ARG DOCKER_REGISTRY="ghcr.io/jhee-group"
+
+# base image
+FROM ${DOCKER_REGISTRY}/jheep-base:latest
+
+ARG APP_DIR=/backend
+
+WORKDIR ${APP_DIR}
+
+# re-install jheep with user switch
+RUN pip install --upgrade --editable .[dev]
+
+# entrypoint
+#COPY .settings/supervisord_server.conf /etc/supervisord.conf
+#CMD ["supervisord", "-c", "/etc/supervisord.conf"]
+CMD ["/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait"]

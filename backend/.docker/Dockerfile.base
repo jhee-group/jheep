@@ -21,12 +21,14 @@ RUN apt-get -y update \
 
 ## set home directory
 ENV HOME=/root
-ENV XDG_DATA_HOME=${HOME}/.local/share
-ENV XDG_CONFIG_HOME=${HOME}/.config
 WORKDIR ${HOME}
 
 RUN mkdir -p ${HOME}/.local/bin ${HOME}/.local/lib ${HOME}/.local/share ${HOME}/.config
 RUN printf '\n#set vi\nset -o vi' >> ${HOME}/.bashrc
+
+ENV XDG_DATA_HOME=${HOME}/.local/share
+ENV XDG_CONFIG_HOME=${HOME}/.config
+ENV PATH=${HOME}/.local/bin:${PATH}
 
 # install pypi
 RUN pip install --upgrade pip ipython

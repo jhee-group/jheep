@@ -1,5 +1,4 @@
 from typing import AsyncGenerator
-from pathlib import Path
 import hashlib
 
 from furl import furl
@@ -18,8 +17,8 @@ def validate_url(url: str):
         return True
     except InvalidPath:
         return False
-    except:
-        return False
+    except Exception as e:
+        raise e
 
 
 async def get_file_contents(url: furl, chunk_size: int = -1) -> AsyncGenerator[bytes, None]:
