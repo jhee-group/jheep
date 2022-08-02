@@ -79,7 +79,6 @@ async def test_connection(
 
 @pytest.fixture(scope=fixture_scope)
 async def create_test_db(test_connection: AsyncConnection):
-    await test_connection.run_sync(Base.metadata.drop_all)
     await test_connection.run_sync(Base.metadata.create_all)
 
 
@@ -152,7 +151,7 @@ def test_client_generator(
     @contextlib.asynccontextmanager
     async def _test_client_generator(app: FastAPI):
         app.dependency_overrides = {}
-        app.dependency_overrides[get_async_session] = lambda: test_session
+        app.dependency_overrides[get_async_session] = test_session
 
         async with LifespanManager(app):
             async with AsyncClient(
