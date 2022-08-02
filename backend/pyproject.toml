@@ -86,7 +86,7 @@ dev = [
 ]
 
 [project.scripts]
-jheep = "cli:app"
+jheep = "jheep.cli:app"
 
 [project.urls]
 Documentation = "https://docs.jhee.group/jheep"
