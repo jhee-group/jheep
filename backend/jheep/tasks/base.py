@@ -1,13 +1,13 @@
 import logging
 import asyncio
-from typing import AsyncContextManager, AsyncGenerator, Callable, ClassVar
+from typing import AsyncGenerator, Callable, ClassVar
 from urllib.parse import urlparse
 
 from sqlalchemy.ext.asyncio import AsyncSession
 import dramatiq
 from dramatiq.brokers.redis import RedisBroker
 
-from ..db.main import get_async_session_manager
+from ..db.main import async_session_maker
 from ..config import settings
 
 
@@ -42,7 +42,7 @@ class TaskBase:
 
     def __init__(
         self,
-        get_session: Callable[..., AsyncContextManager[AsyncGenerator[AsyncSession, None]]] = get_async_session_manager,
+        get_session: AsyncGenerator[AsyncSession, None] = async_session_maker,
     ) -> None:
         self.get_session = get_session
 
