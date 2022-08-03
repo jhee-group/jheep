@@ -9,7 +9,7 @@ import uvicorn
 import alembic
 from dramatiq import cli as dcli
 
-from jheep.paths import ALEMBIC_CONFIG_FILE
+from jheep.paths import paths
 from jheep.config import settings, Environment
 
 
@@ -22,7 +22,8 @@ def preprocess_for_alembic():
 
     url, connect_args = settings.get_database_connection_parameters(asyncio=False)
     engine = create_engine(url, connect_args=connect_args)
-    config = Config(ALEMBIC_CONFIG_FILE, ini_section="alembic")
+    ini_file = paths.alembic_ini_file
+    config = Config(ini_file, ini_section="alembic")
     return engine, config
 
 

@@ -1,2 +1,6 @@
+__pycache__/
+.dask/
+.pytest_cache/
 .dockerignore
 .docker/
+.coverage

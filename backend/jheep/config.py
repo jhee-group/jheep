@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from enum import Enum
 from pathlib import Path
@@ -18,6 +19,22 @@ from .db.types import (
     create_database_connection_parameters,
 )
 from .exceptions import UnsupportedEnvironment
+
+
+def get_config_root(base_dir: str = "jheep"):
+    config_root = os.environ.get("JHEEP_CONFIG_PATH", None)
+    if config_root is None:
+        config_root = os.environ.get('XDG_CONFIG_HOME', None)
+        if config_root is None:
+            config_root = Path.home().joinpath(".config", base_dir)
+        else:
+            config_root = Path(config_root).joinpath(base_dir)
+    else:
+        config_root = Path(config_root)
+    return config_root
+
+
+default_config_path = get_config_root().joinpath(".config")
 
 
 class Environment(str, Enum):
@@ -53,7 +70,11 @@ class DefaultSettings(BaseSettings):
     csrf_cookie_secure: bool = True
 
     class Config:
-        env_file = ".env"
+        env_file = default_config_path
+        env_file_encoding = 'utf-8'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     @root_validator(pre=True)
     def parse_database_url(cls, values):
@@ -72,6 +93,10 @@ class DefaultSettings(BaseSettings):
         if value is None or value == "":
             return None
         return value
+
+    @property
+    def config_root(self) -> Path:
+        return get_config_root()
 
     def get_database_connection_parameters(
         self, asyncio: bool = True, schema: Optional[str] = None

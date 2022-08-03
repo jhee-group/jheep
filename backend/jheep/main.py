@@ -9,7 +9,7 @@ from fastapi_versioning import VersionedFastAPI
 
 from .routers import router
 from .config import settings, Environment
-from .paths import STATIC_DIRECTORY
+from .paths import paths
 from .cache import init_cache
 
 
@@ -48,7 +48,7 @@ app = VersionedFastAPI(
 )
 
 # mount needs to be defined after VersionedFastAPI call
-app.mount("/static", StaticFiles(directory=STATIC_DIRECTORY), name="static")
+app.mount("/static", StaticFiles(directory=paths.static_dir), name="static")
 
 
 @app.on_event("startup")
