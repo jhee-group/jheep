@@ -12,7 +12,7 @@ _alembic_base: str = "alembic"
 _static_base: str = "static"
 _locales_base: str = "locales"
 _templates_base: str = "templates"
-_email_templates_base: str = "emails"
+_email_templates_base: str = "email_templates"
 
 _templates_root: DirectoryPath = Path(__file__).parent.joinpath("templates")
 _alembic_ini_filename: str = "alembic.ini"
@@ -50,7 +50,7 @@ def make_alembic_dir(path: Path | None = None) -> DirectoryPath:
     # copy all migrations
     src = _templates_root.joinpath("alembic", "migrations")
     dst = path.joinpath("migrations")
-    su.copytree(src, dst)
+    su.copytree(src, dst, dirs_exist_ok=True)
     return path
 
 
@@ -64,7 +64,7 @@ def make_static_dir(path: Path | None = None) -> DirectoryPath:
     src = _templates_root.joinpath("static")
     dst = path
     if src.exists():
-        su.copytree(src, dst)
+        su.copytree(src, dst, dirs_exist_ok=True)
     return path
 
 
@@ -78,7 +78,7 @@ def make_locales_dir(path: Path | None = None) -> DirectoryPath:
     src = _templates_root.joinpath("locales")
     dst = path
     if src.exists():
-        su.copytree(src, dst)
+        su.copytree(src, dst, dirs_exist_ok=True)
     return path
 
 
@@ -92,7 +92,7 @@ def make_templates_dir(path: Path | None = None) -> DirectoryPath:
     src = _templates_root.joinpath("templates")
     dst = path
     if src.exists():
-        su.copytree(src, dst)
+        su.copytree(src, dst, dirs_exist_ok=True)
     return path
 
 
@@ -106,7 +106,7 @@ def make_email_templates_dir(path: Path | None = None) -> DirectoryPath:
     src = _templates_root.joinpath("email_templates")
     dst = path
     if src.exists():
-        su.copytree(src, dst)
+        su.copytree(src, dst, dirs_exist_ok=True)
     return path
 
 

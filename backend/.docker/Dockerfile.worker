@@ -6,8 +6,8 @@ FROM ${DOCKER_REGISTRY}/jheep-base:latest
 ARG USERNAME=jheepuser
 ARG USERID=1000
 ARG GROUPID=0
-ARG APP_DIR=/backend
-ARG EX_DIR=/examples
+ARG APP_DIR=/jheep/backend
+ARG EX_DIR=/jheep/examples
 
 # install system dependencies
 RUN apt-get -y update \

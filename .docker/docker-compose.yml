@@ -29,13 +29,12 @@ services:
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
       - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
-      - jheep_config:${BACK_APP_DIR}/.jheep
-      - jheep_data:${EXAMPLES_DIR}/.data
+      - jheep_config:${CONFIG_DIR}:rw
     ports:
       - 8801:8801
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
-      - JHEEP_CONFIG_PATH=${BACK_APP_DIR}/.jheep
+      - JHEEP_CONFIG_PATH=${CONFIG_DIR}
       - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
@@ -65,14 +64,13 @@ services:
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
       - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
-      - jheep_config:${BACK_APP_DIR}/.jheep
-      - jheep_data:${EXAMPLES_DIR}/.data
+      - jheep_config:${CONFIG_DIR}:rw
     ports:
       - 8787:8787
       - 8899:8899
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
-      - JHEEP_CONFIG_PATH=${BACK_APP_DIR}/.jheep
+      - JHEEP_CONFIG_PATH=${CONFIG_DIR}
       - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
       - JUPYTER_PORT=8899
     working_dir: ${BACK_APP_DIR}
@@ -104,8 +102,7 @@ services:
 #    volumes:
 #      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
 #      - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
-#      - jheep_config:${BACK_APP_DIR}/.jheep
-#      - jheep_data:${EXAMPLES_DIR}/.data
+#      - jheep_config:${CONFIG_DIR}:rw
 #    ports:
 #      - 8899:8899
 #    environment:
@@ -129,10 +126,10 @@ services:
         - APP_DIR=${BACK_APP_DIR}
     volumes:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
-      - jheep_config:${BACK_APP_DIR}/.jheep
+      - jheep_config:${CONFIG_DIR}:rw
     environment:
       - JHEEP_PATH=${BACK_APP_DIR}
-      - JHEEP_CONFIG_PATH=${BACK_APP_DIR}/.jheep
+      - JHEEP_CONFIG_PATH=${CONFIG_DIR}
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
@@ -144,12 +141,11 @@ services:
     depends_on:
       - db
       - redis
+      - server
 
        
 volumes:
   jheep_db:
-    driver: local
-  jheep_data:
     driver: local
   jheep_config:
     driver: local
