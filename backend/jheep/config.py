@@ -34,7 +34,7 @@ def get_config_root(base_dir: str = "jheep"):
     return config_root
 
 
-default_config_path = get_config_root().joinpath(".config")
+default_config_path = get_config_root().joinpath(".env")
 
 
 class Environment(str, Enum):

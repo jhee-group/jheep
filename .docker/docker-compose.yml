@@ -107,6 +107,7 @@ services:
 #      - 8899:8899
 #    environment:
 #      - JHEEP_PATH=${BACK_APP_DIR}
+#      - JHEEP_CONFIG_PATH=${CONFIG_DIR}
 #      - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
 #      #- NVIDIA_DRIVER_CAPABILITIES=all
 #      #- NVIDIA_VISIBLE_DEVICES=all
