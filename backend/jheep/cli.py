@@ -7,13 +7,33 @@ import importlib
 import typer
 import uvicorn
 import alembic
+from pydantic import ValidationError
 from dramatiq import cli as dcli
+from tabulate import tabulate
 
+from jheep import __version__
 from jheep.paths import paths
-from jheep.config import settings, Environment
+from jheep.config import settings, get_config_root, Environment
 
 
 app = typer.Typer(help="JHEEP Commands")
+
+
+@app.command()
+def info():
+    try:
+        typer.secho(f"jheep version: {__version__}", bold=True)
+        typer.secho(f"Settings path: {get_config_root()}", bold=True)
+        contents = [[key, value] for key, value in settings.dict().items()]
+        table = tabulate(contents, headers=['key', 'value'])
+        typer.echo(table)
+    except ValidationError as e:
+        typer.secho(
+            "* Some environment variables are missing or invalid.", bold=True, fg="red"
+        )
+        for error in e.errors():
+            typer.secho(error)
+        raise typer.Exit(code=1) from e
 
 
 def preprocess_for_alembic():

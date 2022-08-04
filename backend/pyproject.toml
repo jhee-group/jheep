@@ -53,6 +53,7 @@ dependencies = [
   "python-multipart",
   "sqlalchemy",
   "sqlalchemy-utils",
+  "tabulate",
   "typer",
   "uvicorn[standard]",
 ]
