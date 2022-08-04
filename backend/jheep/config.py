@@ -19,8 +19,8 @@ from .db.types import (
 from .exceptions import UnsupportedEnvironment
 
 
-def get_config_root(base_dir: str = "jheep"):
-    config_root = os.environ.get("JHEEP_CONFIG_PATH", None)
+def get_config_root(config_envvar: str = "JHEEP_CONFIG_PATH", base_dir: str = "jheep"):
+    config_root = os.environ.get(config_envvar, None)
     if config_root is None:
         config_root = os.environ.get('XDG_CONFIG_HOME', None)
         if config_root is None:
