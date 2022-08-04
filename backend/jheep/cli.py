@@ -22,8 +22,8 @@ app = typer.Typer(help="JHEEP Commands")
 @app.command()
 def info():
     try:
-        typer.secho(f"jheep version: {__version__}", bold=True)
-        typer.secho(f"Settings path: {get_config_root()}", bold=True)
+        typer.secho(f"version: {__version__}", bold=True)
+        typer.secho(f"config path: {get_config_root()}", bold=True)
         contents = [[key, value] for key, value in settings.dict().items()]
         table = tabulate(contents, headers=['key', 'value'])
         typer.echo(table)
