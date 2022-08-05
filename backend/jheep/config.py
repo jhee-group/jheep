@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from enum import Enum
-from typing import Optional
+from typing import Optional, Callable
 from urllib.parse import urlparse
 
 from pydantic import (
@@ -19,8 +19,8 @@ from .db.types import (
 from .exceptions import UnsupportedEnvironment
 
 
-def get_config_root(config_envvar: str = "JHEEP_CONFIG_PATH", base_dir: str = "jheep") -> Path:
-    config_root = os.environ.get(config_envvar, None)
+def get_config_root(base_dir: str = "jheep") -> Path:
+    config_root = os.environ.get("JHEEP_CONFIG_PATH", None)
     if config_root is None:
         config_root = os.environ.get('XDG_CONFIG_HOME', None)
         if config_root is None:
@@ -40,6 +40,18 @@ class Environment(str, Enum):
     STAGING = "staging"
     PRODUCTION = "production"
     TEST = "test"
+
+
+"""
+class SingletonClass(object):
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(SingletonClass, cls).__new__(cls)
+            # Put any initialization here.
+        return cls._instance
+"""
 
 
 class DefaultSettings(BaseSettings):
@@ -93,7 +105,7 @@ class DefaultSettings(BaseSettings):
         return value
 
     @property
-    def config_root(self) -> Path:
+    def config_root(cls) -> Path:
         return get_config_root()
 
     def get_database_connection_parameters(
