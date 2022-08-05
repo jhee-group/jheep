@@ -4,8 +4,7 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config, pool
 from alembic import context
 
-from jheep import models
-#from jheep.config import settings
+from {{ root_package }} import models
 
 
 # this is the Alembic Config object, which provides

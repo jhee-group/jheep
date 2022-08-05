@@ -32,25 +32,25 @@ def make_alembic_dir(path: Path | None = None) -> DirectoryPath:
         return path
     path.mkdir(mode=0o755, parents=True, exist_ok=True)
 
-    # write alembic.ini
-    template_file = _templates_root.joinpath("alembic", "alembic.ini")
-    with open(template_file, 'r') as f:
-        template = f.read()
-
+    db_param = settings.get_database_connection_parameters(asyncio=False)
     data = {
         'alembic_root': str(path),
-        'database_dsn': settings.get_database_connection_parameters(asyncio=False)
+        'database_dsn': db_param[0],
+        'root_package': settings.root_package,
     }
-    ini = Template(template).render(data)
+    src_root = _templates_root.joinpath('alembic')
+    for src in src_root.rglob('*'):
+        dst = path.joinpath(src.relative_to(src_root))
+        if src.is_dir():
+            dst.mkdir(mode=0o755, parents=True, exist_ok=True)
+            continue
 
-    ini_file = path.joinpath(_alembic_ini_filename)
-    with open(ini_file, 'w') as f:
-        f.write(ini)
+        with open(src, 'r') as f:
+            template = f.read()
+        rendered = Template(template).render(data)
+        with open(dst, 'w') as f:
+            f.write(rendered)
 
-    # copy all migrations
-    src = _templates_root.joinpath("alembic", "migrations")
-    dst = path.joinpath("migrations")
-    su.copytree(src, dst, dirs_exist_ok=True)
     return path
 
 

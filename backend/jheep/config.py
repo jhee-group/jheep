@@ -56,6 +56,8 @@ class SingletonClass(object):
 
 class DefaultSettings(BaseSettings):
     environment: Environment = Environment.DEVELOPMENT
+    root_package: str = "jheep"
+
     host: str = "localhost"
     port: int = 8801
     allow_origin_regex: str = "http://.*localhost:[0-9]+"
