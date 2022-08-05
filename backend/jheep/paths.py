@@ -50,6 +50,8 @@ def make_alembic_dir(path: Path | None = None) -> DirectoryPath:
         rendered = Template(template).render(data)
         with open(dst, 'w') as f:
             f.write(rendered)
+    path.joinpath(_alembic_base, "migrations", "versions")\
+        .mkdir(mode=0o755, parents=True, exist_ok=True)
 
     return path
 
