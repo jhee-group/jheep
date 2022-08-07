@@ -56,7 +56,9 @@ class SingletonClass(object):
 
 class DefaultSettings(BaseSettings):
     environment: Environment = Environment.DEVELOPMENT
-    root_package: str = "jheep"
+
+    alembic_top_package: str = "jheep"
+    alembic_extra_import: str = ""
 
     host: str = "localhost"
     port: int = 8801
@@ -84,9 +86,6 @@ class DefaultSettings(BaseSettings):
     class Config:
         env_file = default_config_path
         env_file_encoding = 'utf-8'
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     @root_validator(pre=True)
     def parse_database_url(cls, values):

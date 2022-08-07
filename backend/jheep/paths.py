@@ -41,7 +41,8 @@ def init_alembic_from_templates(path: Path) -> None:
     data = {
         'alembic_root': str(path),
         'database_dsn': str(db_param[0]),
-        'root_package': settings.root_package,
+        'top_package': settings.alembic_top_package,
+        'extra_import': settings.alembic_extra_import,
     }
     src_root = _templates_root.joinpath('alembic')
     for src in src_root.rglob('*'):
