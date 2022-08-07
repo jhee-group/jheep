@@ -3,6 +3,7 @@ from pathlib import Path
 
 from pydantic import DirectoryPath
 from pydantic.dataclasses import dataclass
+import alembic
 from jinja2 import Template
 
 from .config import settings
@@ -25,17 +26,21 @@ def make_root_dir(path: Path | None = None) -> DirectoryPath:
     return path
 
 
-def make_alembic_dir(path: Path | None = None) -> DirectoryPath:
-    if path is None:
-        path = settings.config_root / _alembic_base
-    if path.exists():
-        return path
-    path.mkdir(mode=0o755, parents=True, exist_ok=True)
+def init_alembic(path: Path) -> None:
+    db_param = settings.get_database_connection_parameters(asyncio=False)
 
+    from alembic.config import Config
+    config = Config(str(path.joinpath(_alembic_ini_filename)))
+    config.set_section_option("alembic", "script_location", "migrations")
+    config.set_section_option("alembic", "sqlalchemy.url", str(db_param[0]))
+    alembic.command.init(config, str(path), template='generic', package=True)
+
+
+def init_alembic_from_templates(path: Path) -> None:
     db_param = settings.get_database_connection_parameters(asyncio=False)
     data = {
         'alembic_root': str(path),
-        'database_dsn': db_param[0],
+        'database_dsn': str(db_param[0]),
         'root_package': settings.root_package,
     }
     src_root = _templates_root.joinpath('alembic')
@@ -53,6 +58,16 @@ def make_alembic_dir(path: Path | None = None) -> DirectoryPath:
 
     versions_dir = path.joinpath("migrations", "versions")
     versions_dir.mkdir(mode=0o755, parents=True, exist_ok=True)
+
+
+def make_alembic_dir(path: Path | None = None) -> DirectoryPath:
+    if path is None:
+        path = settings.config_root / _alembic_base
+    if path.exists():
+        return path
+    path.mkdir(mode=0o755, parents=True, exist_ok=True)
+
+    init_alembic_from_templates(path)
 
     return path
 
