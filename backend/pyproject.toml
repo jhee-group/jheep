@@ -32,6 +32,7 @@ requires-python = ">=3.10"
 dependencies = [
   "aiofiles",
   "aiomysql",
+  "aioredis",
   "aiosqlite",
   "alembic",
   "argon2_cffi",
