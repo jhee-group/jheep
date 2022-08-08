@@ -44,7 +44,7 @@ def init_alembic_from_templates(path: Path) -> None:
         'top_package': settings.alembic_top_package,
         'extra_import': settings.alembic_extra_import,
     }
-    filters.FILTERS['no-quotes'] = lambda s: s.strip('"')
+    filters.FILTERS['noquotes'] = lambda s: s.strip('"')
     src_root = _templates_root.joinpath('alembic')
     for src in src_root.rglob('*'):
         dst = path.joinpath(src.relative_to(src_root))
