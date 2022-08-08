@@ -45,7 +45,6 @@ def init_alembic_from_templates(path: Path) -> None:
         'extra_import': settings.alembic_extra_import,
     }
     src_root = _templates_root.joinpath('alembic')
-    filters.FILTERS['raw'] = lambda s: s
     for src in src_root.rglob('*'):
         dst = path.joinpath(src.relative_to(src_root))
         if src.is_dir():
