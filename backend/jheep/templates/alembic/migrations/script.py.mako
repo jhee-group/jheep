@@ -9,7 +9,7 @@ from alembic import op
 import sqlalchemy as sa
 import sqlalchemy_utils
 import {{ top_package }}
-{{ extra_import | safe }}
+{{ extra_import | no-quotes }}
 ${imports if imports else ""}
 
 # revision identifiers, used by Alembic.
