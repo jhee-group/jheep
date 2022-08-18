@@ -11,10 +11,11 @@ os.environ["ENVIRONMENT"] = "test"
 
 import pytest
 from fastapi import FastAPI
-from asgi_lifespan import LifespanManager
-from httpx import AsyncClient
+from sqlalchemy import inspect
 from sqlalchemy_utils import create_database, drop_database
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, AsyncSession
+from asgi_lifespan import LifespanManager
+from httpx import AsyncClient
 
 from jheep.main import app
 from jheep.models import Base
@@ -24,7 +25,7 @@ from jheep.db.engine import create_async_engine
 from jheep.config import settings
 
 from tests.data import TestData, data_mapping
-from tests.types import GetTestDatabase, GetSessionManager, TestClientGeneratorType
+from tests.types import GetTestDatabase, GetSessionManager, GetClientGenerator
 
 
 fixture_scope = "session"
@@ -80,6 +81,14 @@ async def test_connection(
 @pytest.fixture(scope=fixture_scope)
 async def create_test_db(test_connection: AsyncConnection):
     await test_connection.run_sync(Base.metadata.create_all)
+    """
+    def use_inspector(conn):
+        inspector = inspect(conn)
+        return inspector.get_table_names()
+
+    tables = await test_connection.run_sync(use_inspector)
+    print(tables)
+    """
 
 
 @pytest.fixture(scope=fixture_scope)
@@ -94,7 +103,7 @@ async def test_session(
 
 
 @pytest.fixture(scope=fixture_scope)
-def test_session_manager(test_session: AsyncSession):
+def test_session_manager(test_session: AsyncSession) -> GetSessionManager:
 
     @contextlib.asynccontextmanager
     async def _test_session_manager(*args, **kwargs):
@@ -104,71 +113,53 @@ def test_session_manager(test_session: AsyncSession):
 
 
 @pytest.fixture(scope=fixture_scope)
-async def test_file():
-    filepath = data_mapping["mlmodel"]["basic-model"].path
+async def test_file() -> AsyncGenerator[None, None]:
+    files = ["datasets", "mlmodels"]
     async with aiofiles.tempfile.TemporaryDirectory() as tmpd:
-        path = Path(tmpd, filepath)
-        path.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
-        async with aiofiles.open(path, 'wb') as tmpf:
-            await tmpf.write(b"1234567890")
-        data_mapping["filestore"]["local"].url = f"file://{tmpd}"
+        for key, data in data_mapping.items():
+            if key not in files:
+                continue
+            for name, data_dict in data.items():
+                model = data_dict['model']
+                contents = data_dict['contents']
+                filepath = Path(tmpd, model.path)
+                filepath.parent.mkdir(mode=0o755, parents=True, exist_ok=True)
+                async with aiofiles.open(filepath, 'wb') as tmpf:
+                    await tmpf.write(contents)
+        data_mapping["filestores"]["local"]["model"].url = f"file://{tmpd}"
         yield
-
-
-@pytest.fixture(scope=fixture_scope)
-async def test_env(
-    test_session_manager: GetSessionManager,
-    test_file,
-) -> Tuple[AsyncSession, TestData]:
-    async with test_session_manager() as session:
-        for model in data_mapping.values():
-            for obj in model.values():
-                session.add(obj)
-        await session.commit()
-        yield session, data_mapping
-"""
-@pytest.fixture(scope=fixture_scope)
-async def test_env(
-    test_file,
-    test_session: AsyncSession,
-) -> Tuple[AsyncSession, TestData]:
-    for model in data_mapping.values():
-        for obj in model.values():
-            test_session.add(obj)
-    await test_session.commit()
-    for model in data_mapping.values():
-        for obj in model.values():
-            await test_session.refresh(obj)
-    yield test_session, data_mapping
-"""
 
 
 @pytest.fixture(scope=fixture_scope)
 def test_client_generator(
     test_session: AsyncSession,
-):
+) -> GetClientGenerator:
 
     @contextlib.asynccontextmanager
     async def _test_client_generator(app: FastAPI):
         app.dependency_overrides = {}
-        app.dependency_overrides[get_async_session] = test_session
+        app.dependency_overrides[get_async_session] = lambda: test_session
 
         async with LifespanManager(app):
-            async with AsyncClient(
-                app=app,
-                base_url="http://server:8801",
-            ) as test_client:
+            async with AsyncClient(app=app) as test_client:
                 yield test_client
 
     return _test_client_generator
 
 
 @pytest.fixture(scope=fixture_scope)
-async def test_client(
-    test_client_generator: TestClientGeneratorType,
-) -> AsyncGenerator[AsyncClient, None]:
-    async with test_client_generator(app) as client:
-        yield client
+async def test_env(
+    test_file,
+    test_session_manager: GetSessionManager,
+    test_client_generator: GetClientGenerator,
+) -> AsyncGenerator[Tuple[TestData, AsyncSession, AsyncClient], None]:
+    async with test_session_manager() as session:
+        for key, data in data_mapping.items():
+            for name, data_dict in data.items():
+                session.add(data_dict['model'])
+        await session.commit()
+        async with test_client_generator(app) as client:
+            yield data_mapping, session, client
 
 
 @pytest.fixture

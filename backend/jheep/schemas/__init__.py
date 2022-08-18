@@ -5,6 +5,9 @@ from .filestore import (
     FileStore, FileStoreCreate, FileStoreUpdate,
     File, FileCreate, FileUpdate,
 )
+from .dataset import (
+    Dataset, DatasetCreate, DatasetUpdate,
+)
 from .mlmodel import (
     MLModel, MLModelCreate, MLModelUpdate,
 )
@@ -17,6 +20,9 @@ __all__ = [
     "File",
     "FileCreate",
     "FileUpdate",
+    "Dataset",
+    "DatasetCreate",
+    "DatasetUpdate",
     "MLModel",
     "MLModelCreate",
     "MLModelUpdate",

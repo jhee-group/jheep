@@ -137,7 +137,7 @@ services:
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=jheep_db
-      - ENVIRONMENT=development
+      - ENVIRONMENT=test
     working_dir: ${BACK_APP_DIR}
     depends_on:
       - db

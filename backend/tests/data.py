@@ -1,16 +1,12 @@
 import uuid
 from datetime import datetime, timezone
-from typing import Mapping, TypedDict
+from typing import Any, Dict, Mapping, TypedDict
 
-from jheep.models import (
-    M,
-    FileStore,
-    MLModel,
-)
+from jheep import models as m
 from jheep.config import settings
 
 
-ModelMapping = Mapping[str, M]
+ModelMapping = Mapping[str, Dict[str, Any]]
 
 now = datetime.now(timezone.utc)
 
@@ -18,32 +14,45 @@ now = datetime.now(timezone.utc)
 class TestData(TypedDict):
     __test__ = False
 
-    filestore: ModelMapping[FileStore]
-    mlmodel: ModelMapping[MLModel]
+    filestores: ModelMapping
+    datasets: ModelMapping
+    mlmodels: ModelMapping
 
 
 filestore_id = uuid.uuid4()
+dataset_id = uuid.uuid4()
 mlmodel_id = uuid.uuid4()
 
-filestore: ModelMapping[FileStore] = {
-    "local": FileStore(
-        id=filestore_id,
-        url="file:///tmp",
-    ),
-}
-
-mlmodel: ModelMapping[MLModel] = {
-    "basic-model": MLModel(
-        id=mlmodel_id,
-        name="basic-model",
-        path="basic-model/modelfile",
-        filestore_id=filestore_id,
-    ),
-}
-
 data_mapping: TestData = {
-    "filestore": filestore,
-    "mlmodel": mlmodel,
+    "filestores": {
+        "local": {
+            "model": m.FileStore(
+                id=filestore_id,
+                url="file:///tmp",
+            ),
+        },
+    },
+    "datasets": {
+        "qm9": {
+            "model": m.Dataset(
+                id=dataset_id,
+                path="dataset/qm9",
+                filestore_id=filestore_id,
+            ),
+            "contents": b"1234567890",
+        },
+    },
+    "mlmodels": {
+        "basic-model": {
+            "model": m.MLModel(
+                id=mlmodel_id,
+                name="basic-model",
+                path="mlmodel/basic-model",
+                filestore_id=filestore_id,
+            ),
+            "contents": b"1234567890",
+        },
+    },
 }
 
 __all__ = [

@@ -1,6 +1,9 @@
 from fastapi import APIRouter
 
-from . import artifacts
+from . import filestore
+from . import dataset
+from . import mlmodel
 
 router = APIRouter()
-router.include_router(artifacts.router, include_in_schema=True)
+
+router.include_router(filestore.router, include_in_schema=True)

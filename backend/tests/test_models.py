@@ -3,18 +3,20 @@ from typing import Tuple
 import pytest
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from httpx import AsyncClient
 
 from jheep import models as m
 from jheep import repositories as r
 
-from tests.data import TestData, filestore_id, mlmodel_id
+from tests.data import TestData, filestore_id, dataset_id, mlmodel_id
 
 
 @pytest.mark.asyncio
-async def test_filestore(test_env: Tuple[AsyncSession, TestData]):
-    session, data_mapping = test_env
+async def test_filestore(test_env: Tuple[TestData, AsyncSession, AsyncClient]):
+    data_mapping, session, client = test_env
 
-    store1 = data_mapping["filestore"]["local"]
+    data_dict = data_mapping["filestores"]["local"]
+    store1 = data_dict["model"]
 
     filestore_repo = r.get_repository(r.FileStoreRepository, session)
     statement = select(m.FileStore).where(m.FileStore.id == filestore_id)
@@ -26,10 +28,30 @@ async def test_filestore(test_env: Tuple[AsyncSession, TestData]):
 
 
 @pytest.mark.asyncio
-async def test_mlmodel(test_env: Tuple[AsyncSession, TestData]):
-    session, data_mapping = test_env
+async def test_dataset(test_env: Tuple[TestData, AsyncSession, AsyncClient]):
+    data_mapping, session, _ = test_env
 
-    model1 = data_mapping["mlmodel"]["basic-model"]
+    data_dict = data_mapping["datasets"]["qm9"]
+    dataset1 = data_dict["model"]
+
+    dataset_repo = r.get_repository(r.DatasetRepository, session)
+    statement = select(m.Dataset).where(m.Dataset.id == dataset_id)
+    dataset2 = await dataset_repo.get_one_or_none(statement)
+
+    assert dataset2 is not None
+    assert dataset1.path == dataset2.path
+    assert await dataset2.validate()
+
+    contents = await dataset2.get_contents()
+    assert contents == data_dict["contents"]
+
+
+@pytest.mark.asyncio
+async def test_mlmodel(test_env: Tuple[TestData, AsyncSession, AsyncClient]):
+    data_mapping, session, _ = test_env
+
+    data_dict = data_mapping["mlmodels"]["basic-model"]
+    model1 = data_dict["model"]
 
     model_repo = r.get_repository(r.MLModelRepository, session)
     statement = select(m.MLModel).where(m.MLModel.id == mlmodel_id)
@@ -40,4 +62,4 @@ async def test_mlmodel(test_env: Tuple[AsyncSession, TestData]):
     assert await model2.validate()
 
     contents = await model2.get_contents()
-    assert contents == b"1234567890"
+    assert contents == data_dict["contents"]
