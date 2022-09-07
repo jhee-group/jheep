@@ -54,4 +54,4 @@ Test if backend api works: http://localhost:8801/v1/docs
 # Acknowledgement
 
 The base structure of this project has been inspired by the project [Fief](https://github.com/fief-dev/fief.git).\
-Many thanks to the author and the contributers.
+Many thanks to the author and the contributors.
