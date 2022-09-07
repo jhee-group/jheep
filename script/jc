@@ -196,6 +196,9 @@ fn_dev_cmd()
         "bash")
             ${docker_cmd} exec ${container} bash ${@:2}
             ;;
+        "release")
+            ${docker_cmd} exec ${container} bumpversion --list ${@:2}
+            ;;
         *)
             ${docker_cmd} exec ${container} ${@:1}
             ;;
@@ -275,6 +278,9 @@ case $1 in
         ;;
     "test")
         fn_dev_cmd test
+        ;;
+    "release")
+        fn_dev_cmd release ${@:2}
         ;;
     # base image cmd
     "base")
