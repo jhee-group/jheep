@@ -20,7 +20,7 @@ WORKDIR ${APP_DIR}
 
 ARG JHEEP_VERSION=0.0.1
 
-RUN pip install --upgrade git+https://github.com/jhee-group/jheep@v${JHEEP_VERSION}
+RUN pip install --upgrade git+https://github.com/jhee-group/jheep.git@v${JHEEP_VERSION}#subdirectory=backend
 
 # entrypoint
 COPY .settings/supervisord_server.conf /etc/supervisord.conf
