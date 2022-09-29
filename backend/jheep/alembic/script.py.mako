@@ -8,8 +8,8 @@ Create Date: ${create_date}
 from alembic import op
 import sqlalchemy as sa
 import sqlalchemy_utils
-import {{ top_package }}
-{{ extra_import | noquotes }}
+import jheep
+
 ${imports if imports else ""}
 
 # revision identifiers, used by Alembic.

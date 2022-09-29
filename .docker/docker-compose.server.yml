@@ -18,11 +18,11 @@ services:
     volumes:
       - jheep_db:/var/lib/postgresql/data:rw
 
-  dev:
-    image: ${DOCKER_REGISTRY}/jheep-dev:latest
+  server:
+    image: ${DOCKER_REGISTRY}/jheep-server:latest
     build:
       context: ${JHEEP_PATH}/backend
-      dockerfile: .docker/Dockerfile.dev
+      dockerfile: .docker/Dockerfile.server
       args:
         - GIT_REF=${GIT_REF}
         - APP_DIR=${BACK_APP_DIR}
@@ -30,7 +30,6 @@ services:
       - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
       - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
       - jheep_data:${CONFIG_DIR}:rw
-      - ${HOME}/.gitconfig:/root/.gitconfig
     ports:
       - 8801:8801
     environment:

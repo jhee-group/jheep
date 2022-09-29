@@ -6,7 +6,7 @@ from sqlalchemy import pool
 
 from alembic import context
 
-from {{ top_package }} import models
+from jheep import models
 
 
 # this is the Alembic Config object, which provides

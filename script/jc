@@ -14,9 +14,7 @@ export FRONT_APP_DIR="${DOCKER_APP_DIR}/frontend"
 export EXAMPLES_DIR="${DOCKER_APP_DIR}/examples"
 export CONFIG_DIR="${DOCKER_APP_DIR}/.config"
 
-docker_file="${JHEEP_PATH}/.docker/docker-compose.yml"
 project_name="jheep-dev"
-docker_cmd="docker-compose -f ${docker_file} -p ${project_name}"
 
 fn_help()
 {
@@ -93,6 +91,9 @@ fn_db_cmd()
     dbuser="postgres"
     dbname="jheep_db"
 
+    docker_file="${JHEEP_PATH}/.docker/docker-compose.yml"
+    docker_cmd="docker-compose -f ${docker_file} -p ${project_name}"
+
     case $1 in
         "logs")
             ${docker_cmd} logs ${container}
@@ -109,74 +110,6 @@ fn_db_cmd()
     esac
 }
 
-fn_server_cmd()
-{
-    [[ $# -lt 1 ]] && fn_help && exit 1
-
-    container="server"
-    img="${DOCKER_REGISTRY}/jheep-server"
-
-    case $1 in
-        "logs")
-            ${docker_cmd} logs ${container}
-            ;;
-        "build")
-            fn_check_gitrepo
-            #fn_pull "${DOCKER_REGISTRY}/jheep-base"
-            ${docker_cmd} build ${container}
-            ;;
-        "push")
-            fn_push ${img}
-            ;;
-        "pull")
-            fn_pull ${img}
-            ;;
-        #"jheep")
-        #    ${docker_cmd} exec ${container} jheep ${@:2}
-        #    ;;
-        #"bash")
-        #    ${docker_cmd} exec ${container} bash ${@:2}
-        #    ;;
-        *)
-            ${docker_cmd} exec ${container} ${@:1}
-            ;;
-    esac
-}
-
-fn_worker_cmd()
-{
-    [[ $# -lt 1 ]] && fn_help && exit 1
-
-    container="worker"
-    img="${DOCKER_REGISTRY}/jheep-worker"
-
-    case $1 in
-        "logs")
-            ${docker_cmd} logs ${container}
-            ;;
-        "build")
-            fn_check_gitrepo
-            #fn_pull "${DOCKER_REGISTRY}/jheep-base"
-            ${docker_cmd} build ${container}
-            ;;
-        "push")
-            fn_push ${img}
-            ;;
-        "pull")
-            fn_pull ${img}
-            ;;
-        #"jheep")
-        #    ${docker_cmd} exec ${container} jheep ${@:2}
-        #    ;;
-        #"bash")
-        #    ${docker_cmd} exec ${container} bash ${@:2}
-        #    ;;
-        *)
-            ${docker_cmd} exec ${container} ${@:1}
-            ;;
-    esac
-}
-
 fn_dev_cmd()
 {
     [[ $# -lt 1 ]] && fn_help && exit 1
@@ -184,11 +117,26 @@ fn_dev_cmd()
     container="dev"
     img="${DOCKER_REGISTRY}/jheep-dev"
 
+    docker_file="${JHEEP_PATH}/.docker/docker-compose.yml"
+    docker_cmd="docker-compose -f ${docker_file} -p ${project_name}"
+    
     case $1 in
+        "logs")
+            ${docker_cmd} logs ${container}
+            ;;
+        "up")
+            ${docker_cmd} up -d --remove-orphans
+            ;;
+        "down")
+            ${docker_cmd} down --remove-orphans
+            ;;
         "build")
             fn_check_gitrepo
             #fn_pull "${DOCKER_REGISTRY}/jheep-base"
             ${docker_cmd} build ${container}
+            ;;
+        "jheep")
+            ${docker_cmd} exec ${container} jheep ${@:2}
             ;;
         "test")
             ${docker_cmd} exec ${container} pytest -s ${@:2}
@@ -205,6 +153,79 @@ fn_dev_cmd()
     esac
 }
 
+fn_server_cmd()
+{
+    [[ $# -lt 1 ]] && fn_help && exit 1
+
+    container="server"
+    img="${DOCKER_REGISTRY}/jheep-server"
+
+    docker_file="${JHEEP_PATH}/.docker/docker-compose.server.yml"
+    docker_cmd="docker-compose -f ${docker_file} -p ${project_name}"
+    
+    case $1 in
+        "logs")
+            ${docker_cmd} logs ${container}
+            ;;
+        "build")
+            fn_check_gitrepo
+            #fn_pull "${DOCKER_REGISTRY}/jheep-base"
+            ${docker_cmd} build ${container}
+            ;;
+        "push")
+            fn_push ${img}
+            ;;
+        "pull")
+            fn_pull ${img}
+            ;;
+        "bash")
+            ${docker_cmd} exec ${container} bash ${@:2}
+            ;;
+        *)
+            ${docker_cmd} exec ${container} ${@:1}
+            ;;
+    esac
+}
+
+fn_worker_cmd()
+{
+    [[ $# -lt 1 ]] && fn_help && exit 1
+
+    container="worker"
+    img="${DOCKER_REGISTRY}/jheep-worker"
+
+    docker_file="${JHEEP_PATH}/.docker/docker-compose.worker.yml"
+    docker_cmd="docker-compose -f ${docker_file} -p ${project_name}"
+    
+    case $1 in
+        "up")
+            ${docker_cmd} up -d --remove-orphans
+            ;;
+        "logs")
+            ${docker_cmd} logs ${container}
+            ;;
+        "build")
+            fn_check_gitrepo
+            #fn_pull "${DOCKER_REGISTRY}/jheep-base"
+            ${docker_cmd} build ${container}
+            ;;
+        "push")
+            fn_push ${img}
+            ;;
+        "pull")
+            fn_pull ${img}
+            ;;
+        #"jheep")
+        #    ${docker_cmd} exec ${container} jheep ${@:2}
+        #    ;;
+        "bash")
+            ${docker_cmd} exec ${container} bash ${@:2}
+            ;;
+        *)
+            ${docker_cmd} exec ${container} ${@:1}
+            ;;
+    esac
+}
 
 fn_base_cmd()
 {
@@ -243,18 +264,18 @@ fn_base_cmd()
 
 case $1 in
     "up")
-        ${docker_cmd} up -d --remove-orphans
+        fn_dev_cmd up
         ;;
     "down")
-        ${docker_cmd} down --remove-orphans
+        fn_dev_cmd down
         ;;
     "logs")
-        ${docker_cmd} logs -f
+        fn_dev_cmd logs
         ;;
     "build")
+        fn_dev_cmd build
         fn_server_cmd build
         fn_worker_cmd build
-        fn_dev_cmd build
         ;;
     "push")
         fn_server_cmd push
@@ -271,10 +292,10 @@ case $1 in
         fn_db_cmd dropdb
         ;;
     "makemigrations")
-        fn_server_cmd jheep makemigrations
+        fn_dev_cmd jheep makemigrations
         ;;
     "migrate")
-        fn_server_cmd jheep migrate
+        fn_dev_cmd jheep migrate
         ;;
     "test")
         fn_dev_cmd test

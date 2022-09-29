@@ -13,7 +13,7 @@ ARG EX_DIR=/jheep/examples
 RUN apt-get -y update \
  && apt-get -y install apt-utils \
  && apt-get -y dist-upgrade \
- && apt-get -y install sudo curl \
+ && apt-get -y install sudo curl wget gcc libpq-dev supervisor \
 # && apt-get -y install \
 #    sudo build-essential git wget curl llvm \
 #    libssl-dev zlib1g-dev libbz2-dev libreadline-dev \
@@ -23,6 +23,15 @@ RUN apt-get -y update \
  && apt-get -y autoremove --purge \
  && rm -rf /var/lib/apt/lists/*
                                 
+# install nodejs, yarn, poetry, jupyter
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - \
+ && apt-get update \
+ && apt-get install -y nodejs yarn \
+ && npm i -g npm@^8 \
+ && apt-get -y autoclean \
+ && apt-get -y autoremove --purge \
+ && rm -rf /var/lib/apt/lists/*
+
 # docker user setting
 RUN groupadd -f -g ${GROUPID} ${USERNAME} \
  && useradd -u ${USERID} -g ${GROUPID} -G sudo -m -s /bin/bash ${USERNAME} \
@@ -50,20 +59,11 @@ RUN pip install --upgrade --user pip
 RUN mkdir -p ${HOME}/.ipython/profile_default
 COPY --chown=${USERID}:${GROUPID} .settings/ipython_config.py ${HOME}/.ipython/profile_default/ipython_config.py
 
-# install nvm (for jupyter extensions)
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
-ENV NVM_DIR=${HOME}/.config/nvm
-
-RUN . ${NVM_DIR}/nvm.sh \
- && nvm install --lts --latest-npm \
- && nvm use default
-
-ARG NODE_VERSION="$(nvm current)"
-ENV NODE_PATH=${NVM_DIR}/${NODE_VERSION}/lib/node_modules
-ENV PATH=${NVM_DIR}/versions/node/${NODE_VERSION}/bin:${PATH}
-
 # install jupyterlab
-RUN pip install --upgrade --user jupyterlab ipywidgets dask-labextension bokeh
+RUN pip install --upgrade --user ipython jupyterlab ipywidgets dask-labextension bokeh
+
+RUN mkdir -p ${HOME}/.ipython/profile_default
+COPY .settings/ipython_config.py ${HOME}/.ipython/profile_default/ipython_config.py
 
 RUN mkdir -p ${HOME}/.jupyter/lab/user-settings
 RUN sudo chown -R ${USERID}:${GROUPID} ${HOME}/.jupyter
@@ -74,10 +74,16 @@ RUN sudo chown -R ${USERID}:${GROUPID} ${HOME}/.config/dask
 COPY --chown=${USERID}:${GROUPID} .settings/dask_distributed.yaml ${HOME}/.config/dask/distributed.yaml
 
 # chown APP_DIR
-RUN sudo chown -R ${USERID}:${GROUPID} ${APP_DIR} 
+USER root
+RUN mkdir -p ${APP_DIR} \
+ && sudo chown -R ${USERID}:${GROUPID} ${APP_DIR} 
+
+USER ${USERNAME}
+ENV APP_DIR ${APP_DIR}
 WORKDIR ${APP_DIR}
 
-# re-install jheep with user switch
+# install jheep with user switch
+COPY --chown=${USERID}:${GROUPID} . ${APP_DIR}
 RUN pip install --upgrade --user --editable .[worker]
 
 # prepare example dir

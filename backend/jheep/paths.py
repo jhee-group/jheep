@@ -9,14 +9,14 @@ from jinja2 import Template, filters
 from .config import settings
 
 
-_alembic_base: str = "alembic"
+#_alembic_base: str = "alembic"
 _static_base: str = "static"
 _locales_base: str = "locales"
 _templates_base: str = "templates"
 _email_templates_base: str = "email_templates"
 
 _templates_root: DirectoryPath = Path(__file__).parent.joinpath("templates")
-_alembic_ini_filename: str = "alembic.ini"
+#_alembic_ini_filename: str = "alembic.ini"
 
 
 def make_root_dir(path: Path | None = None) -> DirectoryPath:
@@ -26,6 +26,7 @@ def make_root_dir(path: Path | None = None) -> DirectoryPath:
     return path
 
 
+"""
 def init_alembic(path: Path) -> None:
     db_param = settings.get_database_connection_parameters(asyncio=False)
 
@@ -72,7 +73,7 @@ def make_alembic_dir(path: Path | None = None) -> DirectoryPath:
     init_alembic_from_templates(path)
 
     return path
-
+"""
 
 def make_static_dir(path: Path | None = None) -> DirectoryPath:
     if path is None:
@@ -133,15 +134,15 @@ def make_email_templates_dir(path: Path | None = None) -> DirectoryPath:
 @dataclass
 class PathSettings:
     root_dir: DirectoryPath = make_root_dir()
-    alembic_dir: DirectoryPath = make_alembic_dir()
+    #alembic_dir: DirectoryPath = make_alembic_dir()
     static_dir: DirectoryPath = make_static_dir()
     locales_dir: DirectoryPath = make_locales_dir()
     templates_dir: DirectoryPath = make_templates_dir()
     email_templates_dir: DirectoryPath = make_email_templates_dir()
 
-    @property
-    def alembic_ini_file(self):
-        return self.alembic_dir / _alembic_ini_filename
+    #@property
+    #def alembic_ini_file(self):
+    #    return self.alembic_dir / _alembic_ini_filename
 
 
 paths = PathSettings()

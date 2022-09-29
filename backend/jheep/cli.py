@@ -38,12 +38,21 @@ def info():
 
 def preprocess_for_alembic():
     from sqlalchemy import create_engine
+    from sqlalchemy_utils import database_exists, create_database
     from alembic.config import Config
 
     url, connect_args = settings.get_database_connection_parameters(asyncio=False)
     engine = create_engine(url, connect_args=connect_args)
-    ini_file = paths.alembic_ini_file
+    if not database_exists(engine.url):
+        create_database(engine.url)
+
+    #ini_file = paths.alembic_ini_file
+    ini_file = Path(__file__).parent / "alembic.ini"
     config = Config(ini_file, ini_section="alembic")
+    #config = Config(str(path.joinpath(_alembic_ini_filename)))
+    #config.set_section_option("alembic", "script_location", "migrations")
+    config.set_section_option("alembic", "sqlalchemy.url", str(url))
+    #alembic.command.init(config, str(path), template='generic', package=True)
     return engine, config
 
 

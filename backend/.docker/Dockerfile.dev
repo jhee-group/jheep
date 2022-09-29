@@ -4,12 +4,23 @@ ARG DOCKER_REGISTRY="ghcr.io/jhee-group"
 FROM ${DOCKER_REGISTRY}/jheep-base:latest
 
 ARG APP_DIR=/jheep/backend
+
+# install system dependencies
+RUN apt-get -y update \
+ && apt-get -y install apt-utils \
+ && apt-get -y dist-upgrade \
+ && apt-get -y install libpq-dev supervisor \
+ && apt-get -y autoclean \
+ && apt-get -y autoremove --purge \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p ${APP_DIR}
+ENV APP_DIR ${APP_DIR}
 WORKDIR ${APP_DIR}
 
-# re-install jheep with user switch
+COPY . ${APP_DIR}
 RUN pip install --upgrade --editable .[dev]
 
 # entrypoint
-#COPY .settings/supervisord_server.conf /etc/supervisord.conf
-#CMD ["supervisord", "-c", "/etc/supervisord.conf"]
-CMD ["/bin/bash", "-c", "trap : TERM INT; sleep infinity & wait"]
+COPY .settings/supervisord_server.conf /etc/supervisord.conf
+CMD ["supervisord", "-c", "/etc/supervisord.conf"]
