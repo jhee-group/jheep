@@ -15,7 +15,7 @@ RUN apt-get -y update \
  && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p ${APP_DIR}
-ENV APP_DIR ${APP_DIR}
+ENV JHEEP_APP_DIR ${APP_DIR}
 WORKDIR ${APP_DIR}
 
 ARG JHEEP_VERSION=0.0.1

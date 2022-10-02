@@ -8,11 +8,11 @@ export GROUPID=0
 export GIT_REF=$(git rev-parse --short=8 HEAD)
 export IMG_TAG="${GIT_REF}"
 
-DOCKER_APP_DIR="/jheep"
-export BACK_APP_DIR="${DOCKER_APP_DIR}/backend"
-export FRONT_APP_DIR="${DOCKER_APP_DIR}/frontend"
-export EXAMPLES_DIR="${DOCKER_APP_DIR}/examples"
-export CONFIG_DIR="${DOCKER_APP_DIR}/.config"
+export JHEEP_APP_DIR="/jheep"
+export JHEEP_BACK_DIR="${JHEEP_APP_DIR}/backend"
+export JHEEP_FRONT_DIR="${JHEEP_APP_DIR}/frontend"
+export JHEEP_EXAMPLES_DIR="${JHEEP_APP_DIR}/examples"
+export JHEEP_CONFIG_DIR="${JHEEP_APP_DIR}/.config"
 
 project_name="jheep-dev"
 

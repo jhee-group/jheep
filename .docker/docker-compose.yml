@@ -21,22 +21,21 @@ services:
   dev:
     image: ${DOCKER_REGISTRY}/jheep-dev:latest
     build:
-      context: ${JHEEP_PATH}/backend
-      dockerfile: .docker/Dockerfile.dev
+      context: ${JHEEP_PATH}
+      dockerfile: backend/.docker/Dockerfile.dev
       args:
         - GIT_REF=${GIT_REF}
-        - APP_DIR=${BACK_APP_DIR}
+        - APP_DIR=${JHEEP_APP_DIR}
     volumes:
-      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
-      - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
-      - jheep_data:${CONFIG_DIR}:rw
+      - ${JHEEP_PATH}:${JHEEP_APP_DIR}:rw
+      - jheep_data:${JHEEP_CONFIG_DIR}:rw
       - ${HOME}/.gitconfig:/root/.gitconfig
     ports:
       - 8801:8801
     environment:
-      - JHEEP_PATH=${BACK_APP_DIR}
-      - JHEEP_CONFIG_PATH=${CONFIG_DIR}
-      - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
+      - JHEEP_PATH=${JHEEP_BACK_DIR}
+      - JHEEP_CONFIG_PATH=${JHEEP_CONFIG_DIR}
+      - JHEEP_EXAMPLES_PATH=${JHEEP_EXAMPLES_DIR}
       - DATABASE_TYPE=POSTGRESQL
       - DATABASE_HOST=db
       - DATABASE_PORT=5432
@@ -44,7 +43,7 @@ services:
       - DATABASE_PASSWORD=postgres
       - DATABASE_NAME=jheep_db
       - ENVIRONMENT=development
-    working_dir: ${BACK_APP_DIR}
+    working_dir: ${JHEEP_BACK_DIR}
     depends_on:
       - db
       - redis

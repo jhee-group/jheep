@@ -11,22 +11,22 @@ services:
         - USERNAME=${DOCKER_USER}
         - USERID=${USERID}
         - GROUPID=${GROUPID}
-        - APP_DIR=${BACK_APP_DIR}
-        - EX_DIR=${EXAMPLES_DIR}
+        - APP_DIR=${JHEEP_BACK_DIR}
+        - EX_DIR=${JHEEP_EXAMPLES_DIR}
     user: ${USERID}:${GROUPID}
     volumes:
-      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
-      - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
-      - jheep_data:${CONFIG_DIR}:rw
+      - ${JHEEP_PATH}/backend:${JHEEP_BACK_DIR}:rw
+      - ${JHEEP_PATH}/examples:${JHEEP_EXAMPLES_DIR}:rw
+      - jheep_data:${JHEEP_CONFIG_DIR}:rw
     ports:
       - 8787:8787
       - 8899:8899
     environment:
-      - JHEEP_PATH=${BACK_APP_DIR}
-      - JHEEP_CONFIG_PATH=${CONFIG_DIR}
-      - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
+      - JHEEP_PATH=${JHEEP_BACK_DIR}
+      - JHEEP_CONFIG_PATH=${JHEEP_CONFIG_DIR}
+      - JHEEP_EXAMPLES_PATH=${JHEEP_EXAMPLES_DIR}
       - JUPYTER_PORT=8899
-    working_dir: ${BACK_APP_DIR}
+    working_dir: ${JHEEP_BACK_DIR}
         
 #  gpu-worker:
 #    image: ${DOCKER_REGISTRY}/jheep-cpu-worker:latest
@@ -38,8 +38,8 @@ services:
 #        - USERNAME=${DOCKER_USER}
 #        - USERID=${USERID}
 #        - GROUPID=${GROUPID}
-#        - APP_DIR=${BACK_APP_DIR}
-#        - EX_DIR=${EXAMPLES_DIR}
+#        - APP_DIR=${JHEEP_BACK_DIR}
+#        - EX_DIR=${JHEEP_EXAMPLES_DIR}
 #    deploy:
 #      resources:
 #        reservations:
@@ -51,19 +51,19 @@ services:
 #    shm_size: 2048M
 #    user: ${USERID}:${GROUPID}
 #    volumes:
-#      - ${JHEEP_PATH}/backend:${BACK_APP_DIR}:rw
-#      - ${JHEEP_PATH}/examples:${EXAMPLES_DIR}:rw
-#      - jheep_data:${CONFIG_DIR}:rw
+#      - ${JHEEP_PATH}/backend:${JHEEP_BACK_DIR}:rw
+#      - ${JHEEP_PATH}/examples:${JHEEP_EXAMPLES_DIR}:rw
+#      - jheep_data:${JHEEP_CONFIG_DIR}:rw
 #    ports:
 #      - 8899:8899
 #    environment:
-#      - JHEEP_PATH=${BACK_APP_DIR}
-#      - JHEEP_CONFIG_PATH=${CONFIG_DIR}
-#      - JHEEP_EXAMPLES_PATH=${EXAMPLES_DIR}
+#      - JHEEP_PATH=${JHEEP_BACK_DIR}
+#      - JHEEP_CONFIG_PATH=${JHEEP_CONFIG_DIR}
+#      - JHEEP_EXAMPLES_PATH=${JHEEP_EXAMPLES_DIR}
 #      #- NVIDIA_DRIVER_CAPABILITIES=all
 #      #- NVIDIA_VISIBLE_DEVICES=all
 #      - JUPYTER_PORT=8899
-#    working_dir: ${BACK_APP_DIR}
+#    working_dir: ${JHEEP_BACK_DIR}
 
 volumes:
   jheep_db:
