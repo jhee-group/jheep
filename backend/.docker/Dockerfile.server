@@ -18,7 +18,7 @@ RUN mkdir -p ${APP_DIR}
 ENV JHEEP_APP_DIR ${APP_DIR}
 WORKDIR ${APP_DIR}
 
-ARG JHEEP_VERSION=0.0.1
+ARG JHEEP_VERSION=0.0.2
 
 RUN pip install --upgrade git+https://github.com/jhee-group/jheep.git@v${JHEEP_VERSION}#subdirectory=backend
 
