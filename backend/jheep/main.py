@@ -7,6 +7,7 @@ from fastapi.staticfiles import StaticFiles
 
 from fastapi_versioning import VersionedFastAPI
 
+from . import __version__
 from .routers import router
 from .config import settings, Environment
 from .paths import paths
@@ -49,6 +50,12 @@ app = VersionedFastAPI(
 
 # mount needs to be defined after VersionedFastAPI call
 app.mount("/static", StaticFiles(directory=paths.static_dir), name="static")
+
+
+# info
+@app.get("/info")
+async def get_info():
+    return {"version": __version__}
 
 
 @app.on_event("startup")
