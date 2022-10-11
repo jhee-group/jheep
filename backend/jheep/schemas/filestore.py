@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from furl import furl
 from pydantic import UUID4, AnyUrl, FileUrl
 
 from .generics import BaseModel, UUIDModel, CreatedUpdatedAt
@@ -12,7 +13,6 @@ class FileStoreBase(BaseModel):
 
 
 class FileStore(FileStoreBase, UUIDModel):
-    pass
 
     class Config:
         orm_mode = True
@@ -35,6 +35,10 @@ class FileBase(BaseModel):
 
 class File(UUIDModel, CreatedUpdatedAt, FileBase):
     filestore: FileStore
+
+    async def get_full_path(self):
+        url = furl(self.filestore.url).add(path=self.path)
+        return url
 
 
 class FileCreate(FileBase):
