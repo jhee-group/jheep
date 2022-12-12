@@ -1,0 +1,55 @@
+ARG DOCKER_REGISTRY="ghcr.io/jhee-group"
+
+# base image
+FROM ${DOCKER_REGISTRY}/jheep-base:latest
+
+ENV ML_USER=kaiuser
+ENV ML_UID=1000
+ENV ML_GID=100
+
+# install system dependencies
+RUN apt-get -y update \
+ && apt-get -y install apt-utils \
+ && apt-get -y dist-upgrade \
+ && apt-get -y install \
+    sudo tini htop lsb-release \
+    build-essential libpq-dev graphviz libgraphviz-dev \
+ && apt-get -y autoclean \
+ && apt-get -y autoremove --purge \
+ && rm -rf /var/lib/apt/lists/*
+                                
+# docker user setting
+RUN groupadd -f -g ${ML_GID} ${ML_USER} \
+ && useradd -u ${ML_UID} -g ${ML_GID} -G sudo -m -s /bin/bash ${ML_USER} \
+ && echo "${ML_USER} ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/${ML_USER} \
+ && echo "Customized the sudoers file for passwordless access to the ${ML_USER} user!" \
+ && su - ${ML_USER} -c id
+
+# set home directory
+USER ${ML_USER}
+ENV HOME=/home/${ML_USER}
+ENV PATH=${HOME}/.local/bin:${PATH}
+WORKDIR ${HOME}
+
+ARG GIT_REF=12345678
+ENV GIT_REF=${GIT_REF}
+
+# install pypi
+RUN pip install --upgrade --user --no-cache-dir \
+    seldon-core mlserver mlserver-sklearn
+    
+ENV MLSERVER_MODELS_DIR=/mnt/models
+ENV MLSERVER_ENV_TARBALL=${MLSERVER_MODELS_DIR}/environment.tar.gz
+ENV MLSERVER_PATH=${HOME}/mlserver
+
+ARG JHEEP_VERSION=0.0.2
+RUN pip install --upgrade git+https://github.com/jhee-group/jheep.git@v${JHEEP_VERSION}#subdirectory=backend
+
+# prepare start script
+COPY --chown=${ML_UID}:${ML_GID} .settings/start-mlserver.sh ${HOME}/.local/bin
+RUN chmod 775 ${HOME}/.local/bin/start-mlserver.sh \
+ && mkdir -p ${MLSERVER_PATH}
+
+# entrypoint
+ENTRYPOINT ["tini", "-g", "-v", "--"]
+CMD ["start-mlserver.sh"]

@@ -227,6 +227,34 @@ fn_worker_cmd()
     esac
 }
 
+fn_mlserver_cmd()
+{
+    [[ $# -lt 1 ]] && fn_help && exit 1
+
+    docker_file="${JHEEP_PATH}/backend/.docker/Dockerfile.mlserver"
+    img="${DOCKER_REGISTRY}/jheep-mlserver"
+
+    fn_docker_login
+
+    case $1 in
+        "build")
+            fn_check_gitrepo
+            docker build -f ${docker_file} -t "${img}:${GIT_REF}" --pull \
+                --build-arg "GIT_REF=${GIT_REF}" \
+                ${JHEEP_PATH}/backend
+            docker tag "${img}:${GIT_REF}" "${img}:latest"
+            ;;
+        "push")
+            fn_push ${img}
+            ;;
+        "pull")
+            fn_pull ${img}
+            ;;
+        *)
+            ;;
+    esac
+}
+
 fn_base_cmd()
 {
     [[ $# -lt 1 ]] && fn_help && exit 1
@@ -316,6 +344,9 @@ case $1 in
         ;;
     "worker")
         fn_worker_cmd ${@:2}
+        ;;
+    "mlserver")
+        fn_mlserver_cmd ${@:2}
         ;;
     "dev")
         fn_dev_cmd ${@:2}
