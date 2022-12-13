@@ -230,25 +230,34 @@ fn_worker_cmd()
 fn_mlserver_cmd()
 {
     [[ $# -lt 1 ]] && fn_help && exit 1
-
-    docker_file="${JHEEP_PATH}/backend/.docker/Dockerfile.mlserver"
+    
+    container="mlserver"
     img="${DOCKER_REGISTRY}/jheep-mlserver"
 
+    docker_file="${JHEEP_PATH}/.docker/docker-compose.mlserver.yml"
+    docker_cmd="docker-compose -f ${docker_file} -p ${project_name}"
+ 
     fn_docker_login
 
     case $1 in
+        "up")
+            ${docker_cmd} up -d --remove-orphans
+            ;;
+        "logs")
+            ${docker_cmd} logs ${@:2}
+            ;;
         "build")
             fn_check_gitrepo
-            docker build -f ${docker_file} -t "${img}:${GIT_REF}" --pull \
-                --build-arg "GIT_REF=${GIT_REF}" \
-                ${JHEEP_PATH}/backend
-            docker tag "${img}:${GIT_REF}" "${img}:latest"
+            ${docker_cmd} build ${container} --pull
             ;;
         "push")
             fn_push ${img}
             ;;
         "pull")
             fn_pull ${img}
+            ;;
+        "bash")
+            ${docker_cmd} exec ${container} bash ${@:2}
             ;;
         *)
             ;;

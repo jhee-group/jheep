@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+  init:
+    image: seldonio/rclone-storage-initializer:1.15.0
+    environment:
+      - RCLONE_CONFIG_GS_TYPE=google cloud storage
+      - RCLONE_CONFIG_GS_ANONYMOUS=true
+    volumes:
+      - jheep_mlserver_model:/mnt/models:rw
+    user: root
+    command:
+      - gs://seldon-models/v1.15.0-dev/sklearn/iris
+      - /mnt/models
+        
+  mlserver:
+    image: ${DOCKER_REGISTRY}/jheep-mlserver:latest
+    build:
+      context: ${JHEEP_PATH}/backend
+      dockerfile: .docker/Dockerfile.mlserver
+      args:
+        - GIT_REF=${GIT_REF}
+    volumes:
+      - jheep_mlserver_model:/mnt/models
+    ports:
+      - 9000:9000
+      - 9500:9500
+    environment:
+      - JHEEP_PATH=${JHEEP_BACK_DIR}
+      - JHEEP_CONFIG_PATH=${JHEEP_CONFIG_DIR}
+      - JHEEP_EXAMPLES_PATH=${JHEEP_EXAMPLES_DIR}
+      - DATABASE_TYPE=POSTGRESQL
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=jheep_db
+      - ENVIRONMENT=development
+      - MLSERVER_DEBUG=true
+      - MLSERVER_METRICS_PORT=6000
+      - MLSERVER_HTTP_PORT=9000
+      - MLSERVER_GRPC_PORT=9500
+      - MLSERVER_MODEL_IMPLEMENTATION=mlserver_sklearn.SKLearnModel
+      - MLSERVER_MODEL_NAME=iris
+      - MLSERVER_MODEL_VERSION=v1
+      - MLSERVER_MODEL_URI=/mnt/models
+      - MLSERVER_METRICS_ENDPOINT=/prometheus
+      - TEMPO_RUNTIME_OPTIONS='{"k8s_options":{"defaultRuntime":"tempo.seldon.SeldonKubernetesRuntime","namespace":"example"}}'
+      - PREDICTIVE_UNIT_SERVICE_PORT=9000
+      - PREDICTIVE_UNIT_HTTP_SERVICE_PORT=9000
+      - PREDICTIVE_UNIT_GRPC_SERVICE_PORT=9500
+      - PREDICTIVE_UNIT_PARAMETERS='[{"name":"method","value":"predict","type":"STRING"}]'
+      - PREDICTIVE_UNIT_ID=iris-server
+      - PREDICTIVE_UNIT_IMAGE=${DOCKER_REGISTRY}/jheep-mlserver:latest
+      - PREDICTOR_ID=default
+      - PREDICTOR_LABELS='{"version":"default"}'
+      - SELDON_DEPLOYMENT_ID=iris
+      - SELDON_EXECUTOR_ENABLED=true
+      - PREDICTIVE_UNIT_METRICS_SERVICE_PORT=6000
+      - PREDICTIVE_UNIT_METRICS_ENDPOINT=/prometheus
+    depends_on:
+      - init
+
+volumes:
+  jheep_mlserver_model:
+    driver: local
