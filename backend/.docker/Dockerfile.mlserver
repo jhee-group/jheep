@@ -3,7 +3,7 @@ ARG DOCKER_REGISTRY="ghcr.io/jhee-group"
 # base image
 FROM ${DOCKER_REGISTRY}/jheep-base:latest
 
-ENV ML_USER=kaiuser
+ENV ML_USER=mluser
 ENV ML_UID=1000
 ENV ML_GID=100
 

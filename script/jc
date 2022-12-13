@@ -301,17 +301,23 @@ case $1 in
         fn_dev_cmd logs
         ;;
     "build")
+        fn_base_cmd build
         fn_dev_cmd build
         fn_server_cmd build
         fn_worker_cmd build
+        fn_mlserver_cmd build
         ;;
     "push")
+        fn_base_cmd push
         fn_server_cmd push
         fn_worker_cmd push
+        fn_mlserver_cmd push
         ;;
     "pull")
+        fn_base_cmd pull
         fn_server_cmd pull
         fn_worker_cmd pull
+        fn_mlserver_cmd pull
         ;;
     "createdb")
         fn_db_cmd createdb

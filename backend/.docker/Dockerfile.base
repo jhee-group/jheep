@@ -1,8 +1,7 @@
 # base image
 FROM python:3.10-slim
 
-ARG PYTHON_VERSION=3.10.7
-ARG GIT_REF=12345678
+ARG PYTHON_VERSION=3.10.8
 
 # set environment variables
 ENV DEBIAN_FRONTEND noninteractive
@@ -36,6 +35,7 @@ RUN mkdir -p ${HOME}/.pip
 COPY .settings/pip_server.conf ${HOME}/.pip/pip.conf
 
 # set working directory
+ARG GIT_REF=12345678
 ENV GIT_REF=${GIT_REF}
 RUN echo "GIT_REF=${GIT_REF}"
 
