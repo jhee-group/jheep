@@ -133,7 +133,7 @@ fn_dev_cmd()
         "build")
             fn_check_gitrepo
             #fn_pull "${DOCKER_REGISTRY}/jheep-base"
-            ${docker_cmd} build ${container}
+            ${docker_cmd} build --pull ${container}
             ;;
         "jheep")
             ${docker_cmd} exec ${container} jheep ${@:2}
@@ -170,7 +170,7 @@ fn_server_cmd()
         "build")
             fn_check_gitrepo
             #fn_pull "${DOCKER_REGISTRY}/jheep-base"
-            ${docker_cmd} build ${container}
+            ${docker_cmd} build --pull ${container}
             ;;
         "push")
             fn_push ${img}
@@ -207,7 +207,7 @@ fn_worker_cmd()
         "build")
             fn_check_gitrepo
             #fn_pull "${DOCKER_REGISTRY}/jheep-base"
-            ${docker_cmd} build ${container}
+            ${docker_cmd} build --pull ${container}
             ;;
         "push")
             fn_push ${img}
@@ -248,7 +248,7 @@ fn_mlserver_cmd()
             ;;
         "build")
             fn_check_gitrepo
-            ${docker_cmd} build ${container} --pull
+            ${docker_cmd} build --pull ${container}
             ;;
         "push")
             fn_push ${img}
@@ -274,7 +274,7 @@ fn_base_cmd()
     case $1 in
         "build")
             fn_check_gitrepo
-            docker build -f ${docker_file} -t "${img}:${GIT_REF}" \
+            docker build -f ${docker_file} -t "${img}:${GIT_REF}" --pull \
                 --build-arg "GIT_REF=${GIT_REF}" \
                 --build-arg "USERNAME=${DOCKER_USER}" \
                 --build-arg "USERID=${USERID}" \
