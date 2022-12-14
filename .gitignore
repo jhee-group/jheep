@@ -133,3 +133,4 @@ dmypy.json
 .dask/
 .github/.pat
 examples/.data
+script/input.json

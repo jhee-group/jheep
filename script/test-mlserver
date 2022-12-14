@@ -1,0 +1,16 @@
+#!/bin/bash
+
+HOST_URL=http://localhost:9000
+
+json_file="${JHEEP_PATH}/script/input.json"
+
+echo '{
+  "inputs": [
+    {"name": "predict", "shape": [1, 4], "datatype": "FP32", "data": [[1, 2, 3, 4]]}
+  ]
+}' | jq . > ${json_file}
+
+curl -v -s \
+  -X POST ${HOST_URL}/v2/models/iris/infer \
+  -H "Content-Type: application/json" \
+  -d @${json_file}
