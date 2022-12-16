@@ -96,7 +96,7 @@ fn_db_cmd()
 
     case $1 in
         "logs")
-            ${docker_cmd} logs ${container}
+            ${docker_cmd} logs ${container} ${@:2}
             ;;
         "reset")
             ${docker_cmd} exec ${container} bash -c "dropdb -U ${dbuser} ${dbname} && createdb -U ${dbuser} ${dbname}"
@@ -122,7 +122,7 @@ fn_dev_cmd()
     
     case $1 in
         "logs")
-            ${docker_cmd} logs ${container}
+            ${docker_cmd} logs ${@:2}
             ;;
         "up")
             ${docker_cmd} up -d --remove-orphans
@@ -134,6 +134,9 @@ fn_dev_cmd()
             fn_check_gitrepo
             #fn_pull "${DOCKER_REGISTRY}/jheep-base"
             ${docker_cmd} build --pull ${container}
+            ;;
+        "mlflow")
+            ${docker_cmd} exec mlflow-server mlflow ${@:2}
             ;;
         "jheep")
             ${docker_cmd} exec ${container} jheep ${@:2}
@@ -148,7 +151,7 @@ fn_dev_cmd()
             ${docker_cmd} exec ${container} bumpversion --list ${@:2}
             ;;
         *)
-            ${docker_cmd} exec ${container} ${@:1}
+            ${docker_cmd} exec ${@:1}
             ;;
     esac
 }
@@ -165,7 +168,7 @@ fn_server_cmd()
     
     case $1 in
         "logs")
-            ${docker_cmd} logs ${container}
+            ${docker_cmd} logs ${container} ${@:2}
             ;;
         "build")
             fn_check_gitrepo
@@ -202,7 +205,7 @@ fn_worker_cmd()
             ${docker_cmd} up -d --remove-orphans
             ;;
         "logs")
-            ${docker_cmd} logs ${container}
+            ${docker_cmd} logs ${container} ${@:2}
             ;;
         "build")
             fn_check_gitrepo

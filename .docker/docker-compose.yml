@@ -17,6 +17,40 @@ services:
       - POSTGRES_DB=jheep_db
     volumes:
       - jheep_db:/var/lib/postgresql/data:rw
+      - mlflow_artifact_root:/mnt/mlflow:rw
+
+  mlflow-server:
+    image: ${DOCKER_REGISTRY}/jheep-dev:latest
+    volumes:
+      - ${JHEEP_PATH}:${JHEEP_APP_DIR}:rw
+      - jheep_data:${JHEEP_CONFIG_DIR}:rw
+      - mlflow_artifact_root:/mnt/mlflow:rw
+      - ${HOME}/.gitconfig:/root/.gitconfig
+    ports:
+      - 5000:5000
+    environment:
+      - JHEEP_PATH=${JHEEP_BACK_DIR}
+      - JHEEP_CONFIG_PATH=${JHEEP_CONFIG_DIR}
+      - JHEEP_EXAMPLES_PATH=${JHEEP_EXAMPLES_DIR}
+      - DATABASE_TYPE=POSTGRESQL
+      - DATABASE_HOST=db
+      - DATABASE_PORT=5432
+      - DATABASE_USERNAME=postgres
+      - DATABASE_PASSWORD=postgres
+      - DATABASE_NAME=jheep_db
+      - ENVIRONMENT=development
+    working_dir: ${JHEEP_BACK_DIR}
+    depends_on:
+      - db
+    command:
+      - mlflow
+      - server
+      - --backend-store-uri
+      - postgresql://postgres:postgres@db:5432/mlflow
+      - --default-artifact-root
+      - file://mnt/mlflow
+      - --host
+      - 0.0.0.0
 
   dev:
     image: ${DOCKER_REGISTRY}/jheep-dev:latest
@@ -29,6 +63,7 @@ services:
     volumes:
       - ${JHEEP_PATH}:${JHEEP_APP_DIR}:rw
       - jheep_data:${JHEEP_CONFIG_DIR}:rw
+      - mlflow_artifact_root:/mnt/mlflow:rw
       - ${HOME}/.gitconfig:/root/.gitconfig
     ports:
       - 8801:8801
@@ -52,4 +87,6 @@ volumes:
   jheep_db:
     driver: local
   jheep_data:
+    driver: local
+  mlflow_artifact_root:
     driver: local

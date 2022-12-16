@@ -49,6 +49,7 @@ dependencies = [
   "jwcrypto",
   "kubernetes",
   "loguru",
+  "mlflow[extras]",
   "mlserver",
   "mlserver-sklearn",
   "psycopg2-binary",
